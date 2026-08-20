@@ -1,0 +1,15 @@
+{
+  "type": "machine",
+  "name": "WASP_3MT_HDP_XL_common",
+  "inherits": "fdm_machine_common",
+  "from": "system",
+  "instantiation": "false",
+  "printer_settings_id": "WASP_3MT_HDP_XL_common",
+  "printer_model": "WASP 3MT HDP XL",
+  "default_filament_profile": ["UPM Generic PETG"],
+  "default_print_profile": "1.20mm Standard @WASP 3MT HDP XL",
+  "machine_start_gcode": "; WASP 3MT HDP XL: Firecap chamber, nozzle T0, barrel/preheat T1\nM106 S0 P0 ; fan off\nM140 S[bed_temperature_initial_layer_single] ; Firecap heated chamber\nM104 S[nozzle_temperature_initial_layer] T0 ; nozzle\nM104 S240 T1 ; barrel/preheat zone (validate per material)\nM109 S[nozzle_temperature_initial_layer] T0 ; wait for nozzle\nM109 S240 T1 ; wait for barrel/preheat zone\nG28 ; home delta\nG92 E0\n",
+  "machine_end_gcode": "M107 ; fan off\nM104 S0 T0 ; nozzle off\nM104 S0 T1 ; barrel/preheat zone off\nM140 S0 ; Firecap chamber off\nG28 ; home axes\n",
+  "fan_kickstart": "0",
+  "fan_speedup_overhangs": "0"
+}

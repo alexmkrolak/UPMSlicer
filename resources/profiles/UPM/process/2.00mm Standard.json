@@ -1,0 +1,26 @@
+{
+  "type": "process",
+  "name": "2.00mm Standard",
+  "inherits": "fdm_process_common",
+  "from": "system",
+  "instantiation": "true",
+  "print_settings_id": "2.00mm Standard",
+  "layer_height": "2.0",
+  "initial_layer_print_height": "2.0",
+  "line_width": "7.0",
+  "outer_wall_line_width": "7.0",
+  "inner_wall_line_width": "7.0",
+  "sparse_infill_line_width": "7.0",
+  "initial_layer_line_width": "7.0",
+  "outer_wall_speed": "35",
+  "inner_wall_speed": "40",
+  "sparse_infill_speed": "40",
+  "internal_solid_infill_speed": "40",
+  "top_surface_speed": "30",
+  "initial_layer_speed": "25",
+  "travel_speed": "120",
+  "compatible_printers": [
+    "WASP 3MT HDP XL 5.0 nozzle"
+  ],
+  "setting_id": "i516hMXnVzGOLeXJ"
+}

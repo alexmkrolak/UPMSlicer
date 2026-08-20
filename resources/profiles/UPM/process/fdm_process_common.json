@@ -1,0 +1,22 @@
+{
+  "type": "process",
+  "name": "fdm_process_common",
+  "from": "system",
+  "instantiation": "false",
+  "default_acceleration": "1500",
+  "initial_layer_acceleration": "1000",
+  "travel_acceleration": "1500",
+  "default_jerk": "5",
+  "initial_layer_jerk": "5",
+  "travel_jerk": "7",
+  "wall_loops": "1",
+  "top_shell_layers": "0",
+  "bottom_shell_layers": "0",
+  "sparse_infill_density": "0%",
+  "brim_type": "outer_only",
+  "brim_width": "20",
+  "seam_position": "aligned",
+  "support_enable": "0",
+  "ensure_vertical_shell_thickness": "none",
+  "wall_generator": "arachne"
+}

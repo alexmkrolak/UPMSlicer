@@ -1,0 +1,17 @@
+{
+  "type": "machine",
+  "name": "WASP 3MT HDP XL 3.0 nozzle",
+  "inherits": "WASP_3MT_HDP_XL_common",
+  "from": "system",
+  "instantiation": "true",
+  "printer_settings_id": "WASP 3MT HDP XL 3.0 nozzle",
+  "nozzle_diameter": [
+    "3.0"
+  ],
+  "max_layer_height": [
+    "1.6"
+  ],
+  "printer_variant": "3.0",
+  "printer_model": "WASP 3MT HDP XL",
+  "setting_id": "TvOWfADxrvravZun"
+}

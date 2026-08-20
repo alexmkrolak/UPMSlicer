@@ -1,0 +1,26 @@
+{
+  "name": "UPM",
+  "version": "01.00.00.00",
+  "force_update": "1",
+  "description": "UPMSlicer configurations for WASP pellet printers",
+  "machine_model_list": [
+    { "name": "WASP 3MT HDP XL", "sub_path": "machine/WASP 3MT HDP XL.json" }
+  ],
+  "machine_list": [
+    { "name": "fdm_machine_common", "sub_path": "machine/fdm_machine_common.json" },
+    { "name": "WASP_3MT_HDP_XL_common", "sub_path": "machine/WASP_3MT_HDP_XL_common.json" },
+    { "name": "WASP 3MT HDP XL 2.0 nozzle", "sub_path": "machine/WASP 3MT HDP XL 2.0 nozzle.json" },
+    { "name": "WASP 3MT HDP XL 3.0 nozzle", "sub_path": "machine/WASP 3MT HDP XL 3.0 nozzle.json" },
+    { "name": "WASP 3MT HDP XL 5.0 nozzle", "sub_path": "machine/WASP 3MT HDP XL 5.0 nozzle.json" }
+  ],
+  "process_list": [
+    { "name": "fdm_process_common", "sub_path": "process/fdm_process_common.json" },
+    { "name": "0.80mm Standard", "sub_path": "process/0.80mm Standard.json" },
+    { "name": "1.20mm Standard", "sub_path": "process/1.20mm Standard.json" },
+    { "name": "2.00mm Standard", "sub_path": "process/2.00mm Standard.json" }
+  ],
+  "filament_list": [
+    { "name": "fdm_filament_common", "sub_path": "filament/fdm_filament_common.json" },
+    { "name": "UPM Generic PETG", "sub_path": "filament/UPM Generic PETG.json" }
+  ]
+}
