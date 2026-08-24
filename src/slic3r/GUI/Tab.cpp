@@ -6069,14 +6069,16 @@ void TabPrinter::toggle_options()
     //}
     if (m_active_page->title() == L("Basic information")) {
         const auto &printer_cfg = m_preset_bundle->printers.get_edited_preset().config;
+        const bool is_pellet_printer = printer_cfg.opt_bool("pellet_modded_printer");
 
         // SoftFever: hide BBL specific settings
         for (auto el : {"scan_first_layer", "bbl_calib_mark_logo", "bbl_use_printhost"})
             toggle_line(el, is_BBL_printer);
 
         // SoftFever: hide non-BBL settings
-        for (auto el : {"use_firmware_retraction", "use_relative_e_distances", "support_multi_bed_types", "pellet_modded_printer", "bed_mesh_max", "bed_mesh_min", "bed_mesh_probe_distance", "adaptive_bed_mesh_margin", "thumbnails"})
+        for (auto el : {"use_firmware_retraction", "use_relative_e_distances", "support_multi_bed_types", "pellet_modded_printer", "bed_mesh_max", "bed_mesh_min", "bed_mesh_probe_distance", "adaptive_bed_mesh_margin"})
           toggle_line(el, !is_BBL_printer);
+        toggle_line("thumbnails", !is_BBL_printer && !is_pellet_printer);
 
         bool gcf_is_marlin_firmware = m_config->option<ConfigOptionEnum<GCodeFlavor>>("gcode_flavor")->value == GCodeFlavor::gcfMarlinFirmware;
         toggle_line("enable_power_loss_recovery", is_BBL_printer || gcf_is_marlin_firmware);
@@ -6564,10 +6566,19 @@ void Tab::rebuild_page_tree()
     // suppress activate page before page_tree rebuilding
     m_disable_tree_sel_changed_event = true;
 
+    bool hide_process_multimaterial = false;
+    if (m_type == Preset::TYPE_PRINT && m_preset_bundle != nullptr) {
+        const auto &printer_config = m_preset_bundle->printers.get_selected_preset().config;
+        if (const auto *pellet_option = printer_config.option<ConfigOptionBool>("pellet_modded_printer"))
+            hide_process_multimaterial = pellet_option->value;
+    }
+
     int curr_item = 0;
     for (auto p : m_pages)
     {
         if (!p->get_show())
+            continue;
+        if (hide_process_multimaterial && p->title() == L("Multimaterial"))
             continue;
         if (m_tabctrl->GetCount() <= curr_item) {
             m_tabctrl->AppendItem(translate_category(p->title(), m_type), p->iconID());

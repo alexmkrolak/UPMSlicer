@@ -1,6 +1,6 @@
 {
   "name": "UPM",
-  "version": "01.00.00.00",
+  "version": "01.00.00.05",
   "force_update": "1",
   "description": "UPMSlicer configurations for WASP pellet printers",
   "machine_model_list": [
@@ -17,10 +17,12 @@
     { "name": "fdm_process_common", "sub_path": "process/fdm_process_common.json" },
     { "name": "0.80mm Standard", "sub_path": "process/0.80mm Standard.json" },
     { "name": "1.20mm Standard", "sub_path": "process/1.20mm Standard.json" },
+    { "name": "1.30mm Standard - Copy", "sub_path": "process/1.30mm Standard - Copy.json" },
     { "name": "2.00mm Standard", "sub_path": "process/2.00mm Standard.json" }
   ],
   "filament_list": [
     { "name": "fdm_filament_common", "sub_path": "filament/fdm_filament_common.json" },
-    { "name": "UPM Generic PETG", "sub_path": "filament/UPM Generic PETG.json" }
+    { "name": "UPM Generic PETG", "sub_path": "filament/UPM Generic PETG.json" },
+    { "name": "Polymaker PETG 20GF - Copy", "sub_path": "filament/Polymaker PETG 20GF - Copy.json" }
   ]
 }

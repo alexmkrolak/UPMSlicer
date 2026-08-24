@@ -2997,11 +2997,15 @@ void GCode::_do_export(Print& print, GCodeOutputStream &file, ThumbnailsGenerato
         }
     }
 
+    // Pellet printers such as the WASP 3MT do not consume G-code thumbnails. Keep this
+    // gated by the existing printer option so non-pellet printers remain unchanged.
+    const bool supports_gcode_thumbnails = !print.full_print_config().opt_bool("pellet_modded_printer");
+
     // Orca: Don't output Header block if BTT thumbnail is identified in the list
     // Get the thumbnails value as a string
     std::string thumbnails_value = print.config().option<ConfigOptionString>("thumbnails")->value;
     // search string for the BTT_TFT label
-    bool has_BTT_thumbnail = (thumbnails_value.find("BTT_TFT") != std::string::npos);
+    bool has_BTT_thumbnail = supports_gcode_thumbnails && (thumbnails_value.find("BTT_TFT") != std::string::npos);
     
     if(!has_BTT_thumbnail){   
         file.write_format("; HEADER_BLOCK_START\n");
@@ -3089,7 +3093,7 @@ void GCode::_do_export(Print& print, GCodeOutputStream &file, ThumbnailsGenerato
                 "; first_layer_temperature = %d\n",
                 print.config().nozzle_temperature_initial_layer.get_at(0));
             file.write("; CONFIG_BLOCK_END\n\n");
-        } else if (thumbnail_cb != nullptr) {
+        } else if (thumbnail_cb != nullptr && supports_gcode_thumbnails) {
             // generate the thumbnails
             auto [thumbnails, errors] = GCodeThumbnails::make_and_check_thumbnail_list(print.full_print_config());
 

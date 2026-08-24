@@ -1,0 +1,134 @@
+{
+  "type": "filament",
+  "name": "Polymaker PETG 20GF - Copy",
+  "inherits": "fdm_filament_common",
+  "from": "system",
+  "instantiation": "true",
+  "filament_id": "PUPM0002",
+  "setting_id": "ixz1MgPHXExpcFjo",
+  "filament_settings_id": [
+    "Polymaker PETG 20GF - Copy"
+  ],
+  "filament_vendor": [
+    "Polymaker"
+  ],
+  "filament_type": [
+    "PETG GF"
+  ],
+  "filament_density": [
+    "1.39"
+  ],
+  "filament_cost": [
+    "6"
+  ],
+  "filament_flow_ratio": [
+    "1"
+  ],
+  "pellet_flow_coefficient": [
+    "1"
+  ],
+  "filament_max_volumetric_speed": [
+    "200"
+  ],
+  "nozzle_temperature": [
+    "240"
+  ],
+  "nozzle_temperature_initial_layer": [
+    "240"
+  ],
+  "nozzle_temperature_range_low": [
+    "210"
+  ],
+  "nozzle_temperature_range_high": [
+    "260"
+  ],
+  "hot_plate_temp": [
+    "70"
+  ],
+  "hot_plate_temp_initial_layer": [
+    "70"
+  ],
+  "fan_min_speed": [
+    "100"
+  ],
+  "fan_max_speed": [
+    "100"
+  ],
+  "close_fan_the_first_x_layers": [
+    "4"
+  ],
+  "full_fan_speed_layer": [
+    "8"
+  ],
+  "fan_cooling_layer_time": [
+    "100"
+  ],
+  "enable_overhang_bridge_fan": [
+    "0"
+  ],
+  "overhang_fan_speed": [
+    "100"
+  ],
+  "overhang_fan_threshold": [
+    "50%"
+  ],
+  "reduce_fan_stop_start_freq": [
+    "1"
+  ],
+  "slow_down_for_layer_cooling": [
+    "1"
+  ],
+  "slow_down_layer_time": [
+    "50"
+  ],
+  "slow_down_min_speed": [
+    "1"
+  ],
+  "temperature_vitrification": [
+    "75"
+  ],
+  "enable_pressure_advance": [
+    "0"
+  ],
+  "pressure_advance": [
+    "0.3"
+  ],
+  "filament_retraction_length": [
+    "30"
+  ],
+  "filament_retraction_speed": [
+    "200"
+  ],
+  "filament_deretraction_speed": [
+    "200"
+  ],
+  "filament_retract_restart_extra": [
+    "12"
+  ],
+  "filament_retraction_minimum_travel": [
+    "20"
+  ],
+  "filament_retract_before_wipe": [
+    "0%"
+  ],
+  "filament_retract_when_changing_layer": [
+    "0"
+  ],
+  "filament_wipe": [
+    "1"
+  ],
+  "filament_wipe_distance": [
+    "20"
+  ],
+  "support_material_interface_fan_speed": [
+    "70"
+  ],
+  "filament_notes": [
+    "Imported from the Ginger Slicer user preset 'Polymaker PETG 20GF - Copy'. Ginger-only values retained for reference: extruder_rotation_volume=300 and cooling_time_per_cross_section=10.9. The two WASP heater zones are mapped to nozzle T0=240 C and barrel T1=240 C; Firecap=70 C. Pressure advance 0.3 is retained but disabled until the WASP firmware is confirmed."
+  ],
+  "compatible_printers": [
+    "WASP 3MT HDP XL 2.0 nozzle",
+    "WASP 3MT HDP XL 3.0 nozzle",
+    "WASP 3MT HDP XL 5.0 nozzle"
+  ]
+}
