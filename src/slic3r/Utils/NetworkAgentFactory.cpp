@@ -6,6 +6,7 @@
 #include "QidiPrinterAgent.hpp"
 #include "SnapmakerPrinterAgent.hpp"
 #include "MoonrakerPrinterAgent.hpp"
+#include "libslic3r/libslic3r.h"
 #include "slic3r/plugin/PluginManager.hpp"
 #include "slic3r/plugin/pluginTypes/printerAgent/PrinterAgentPluginCapability.hpp"
 #include "CrealityPrintAgent.hpp"
@@ -193,6 +194,13 @@ void NetworkAgentFactory::register_all_agents()
 
 std::unique_ptr<NetworkAgent> create_agent_from_config(const std::string& log_dir, AppConfig* app_config)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Keep the NetworkAgent wrapper so LAN printer agents can still be selected,
+    // but do not instantiate any Orca/Bambu cloud provider in Mosso Slicer.
+    (void) log_dir;
+    (void) app_config;
+    return std::make_unique<NetworkAgent>(nullptr, nullptr);
+#else
     if (!app_config)
         return std::make_unique<NetworkAgent>(nullptr, nullptr);
 
@@ -225,6 +233,7 @@ std::unique_ptr<NetworkAgent> create_agent_from_config(const std::string& log_di
     }
 
     return agent;
+#endif
 }
 
 void NetworkAgentFactory::register_python_plugin(const std::string& plugin_key)

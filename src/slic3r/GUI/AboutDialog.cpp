@@ -18,7 +18,7 @@ AboutDialogLogo::AboutDialogLogo(wxWindow* parent)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize)
 {
     this->SetBackgroundColour(*wxWHITE);
-    this->logo = ScalableBitmap(this, Slic3r::var("OrcaSlicer_192px.png"), wxBITMAP_TYPE_PNG);
+    this->logo = ScalableBitmap(this, Slic3r::var("MossoSlicer_192px.png"), wxBITMAP_TYPE_PNG);
     this->SetMinSize(this->logo.GetBmpSize());
 
     this->Bind(wxEVT_PAINT, &AboutDialogLogo::onRepaint, this);
@@ -147,9 +147,9 @@ wxString CopyrightsDialog::get_html_text()
                 "<font size=\"3\">",
          bgr_clr_str, text_clr_str, text_clr_str,
         _L("License"),
-        _L("Orca Slicer is licensed under "),
+        _L("Mosso Slicer is licensed under "),
         "https://www.gnu.org/licenses/agpl-3.0.html",_L("GNU Affero General Public License, version 3"),
-        _L("Orca Slicer is based on PrusaSlicer and BambuStudio"),
+        _L("Mosso Slicer is based on OrcaSlicer, PrusaSlicer and BambuStudio"),
         _L("Libraries"),
         _L("This software uses open source components whose copyright and other proprietary rights belong to their respective owners"));
 
@@ -230,11 +230,21 @@ AboutDialog::AboutDialog()
 	bool is_dark = wxGetApp().app_config->get("dark_color_mode") == "1";
 
     // logo
-    m_logo_bitmap = ScalableBitmap(this, is_dark ? "OrcaSlicer_about_dark" : "OrcaSlicer_about", 125);
-    m_logo = new wxStaticBitmap(this, wxID_ANY, m_logo_bitmap.bmp(), wxDefaultPosition,wxDefaultSize, 0);
-    m_logo->SetSizer(vesizer);
+    m_logo_bitmap = ScalableBitmap(m_panel, "MossoSlicer_192px", 96);
+    m_logo = new wxStaticBitmap(m_panel, wxID_ANY, m_logo_bitmap.bmp(), wxDefaultPosition,wxDefaultSize, 0);
 
-    panel_versizer->Add(m_logo, 1, wxALL | wxEXPAND, 0);
+    auto brand_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto brand_name = new wxStaticText(m_panel, wxID_ANY, SLIC3R_APP_NAME);
+    wxFont brand_font = GetFont().Scaled(2.2f);
+    brand_font.SetWeight(wxFONTWEIGHT_BOLD);
+    brand_name->SetFont(brand_font);
+    brand_name->SetForegroundColour(wxColour("#17343B"));
+    brand_sizer->AddStretchSpacer();
+    brand_sizer->Add(m_logo, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, FromDIP(18));
+    brand_sizer->Add(brand_name, 0, wxALIGN_CENTER_VERTICAL);
+    brand_sizer->AddStretchSpacer(2);
+    brand_sizer->Add(vesizer, 0, wxEXPAND | wxRIGHT, FromDIP(20));
+    panel_versizer->Add(brand_sizer, 1, wxEXPAND | wxALL, 0);
 
     // version
     {
@@ -244,8 +254,8 @@ AboutDialog::AboutDialog()
 
         vesizer->Add(0, 0, 1, wxEXPAND, FromDIP(5));
         auto          version_string = std::string(SoftFever_VERSION); // _L("Orca Slicer ") + " " + std::string(SoftFever_VERSION);
-        wxStaticText* version = new wxStaticText(this, wxID_ANY, version_string.c_str(), wxDefaultPosition, wxDefaultSize);
-        wxStaticText* credits_string = new wxStaticText(this, wxID_ANY, wxString::Format("Build %s", std::string(GIT_COMMIT_HASH)), wxDefaultPosition, wxDefaultSize);
+        wxStaticText* version = new wxStaticText(m_panel, wxID_ANY, version_string.c_str(), wxDefaultPosition, wxDefaultSize);
+        wxStaticText* credits_string = new wxStaticText(m_panel, wxID_ANY, wxString::Format("Build %s", std::string(GIT_COMMIT_HASH)), wxDefaultPosition, wxDefaultSize);
         credits_string->SetFont(_build_string_font);
         wxFont version_font = GetFont();
         version_font = version_font.Scaled(1.85f); // SetPointSize(20) not works on macOS because it uses a 72 PPI reference
@@ -266,6 +276,7 @@ AboutDialog::AboutDialog()
     text_sizer_horiz->Add( 0, 0, 0, wxLEFT, FromDIP(20));
 
     std::vector<wxString> text_list;
+    text_list.push_back(_L("Mosso Slicer is a specialised OrcaSlicer fork for UPM Visual Solutions, configured for WASP filament and pellet printers."));
     text_list.push_back(_L("Open-source slicing stands on a tradition of collaboration and attribution. Slic3r, created by Alessandro Ranellucci and the RepRap community, laid the foundation. PrusaSlicer by Prusa Research built on that work, Bambu Studio forked from PrusaSlicer, and SuperSlicer extended it with community-driven enhancements. Each project carried the work of its predecessors forward, crediting those who came before."));
     text_list.push_back(_L("OrcaSlicer began in that same spirit, drawing from PrusaSlicer, BambuStudio, SuperSlicer, and CuraSlicer. But it has since grown far beyond its origins — introducing advanced calibration tools, precise wall and seam control and hundreds of other features."));
     text_list.push_back(_L("Today, OrcaSlicer is the most widely used and actively developed open-source slicer in the 3D printing community. Many of its innovations have been adopted by other slicers, making it a driving force for the entire industry."));
@@ -311,7 +322,10 @@ AboutDialog::AboutDialog()
 
     copyright_hor_sizer->Add(copyright_ver_sizer, 0, wxLEFT, FromDIP(20));
 
-    wxStaticText *html_text = new wxStaticText(this, wxID_ANY, "Copyright(C) 2026 OrcaSlicer Pte Ltd All Rights Reserved", wxDefaultPosition, wxDefaultSize);
+    wxStaticText *html_text = new wxStaticText(this, wxID_ANY,
+        "Mosso Slicer customisations Copyright(C) 2026 UPM Visual Solutions\n"
+        "OrcaSlicer portions Copyright(C) 2026 OrcaSlicer Pte Ltd",
+        wxDefaultPosition, wxDefaultSize);
     html_text->SetForegroundColour(wxColour(107, 107, 107));
 
     copyright_ver_sizer->Add(html_text, 0, wxALL , 0);
@@ -330,7 +344,7 @@ AboutDialog::AboutDialog()
               (boost::format(
               "<html>"
               "<body bgcolor= \"" + bgr_clr_str + "\" >"
-              "<p style=\"text-align:left\"><a style=\"color:#009789\" href=\"https://www.orcaslicer.com\">https://www.orcaslicer.com</ a></p>"
+              "<p style=\"text-align:left\"><a style=\"color:#6F7A00\" href=\"https://github.com/alexmkrolak/UPMSlicer\">Mosso Slicer on GitHub</a></p>"
               "</body>"
               "</html>")
             ).str());
@@ -354,9 +368,8 @@ AboutDialog::AboutDialog()
     button_portions->Bind(wxEVT_BUTTON, &AboutDialog::onCopyrightBtn, this);
 
     wxGetApp().UpdateDlgDarkUI(this);
-	SetSizer(main_sizer);
+	SetSizerAndFit(main_sizer);
     Layout();
-    Fit();
     CenterOnParent();
 }
 

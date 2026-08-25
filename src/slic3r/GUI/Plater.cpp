@@ -899,7 +899,7 @@ void Sidebar::priv::flush_printer_sync(bool restart)
         *counter_sync_printer = 6;
         timer_sync_printer->Start(500);
     }
-    //btn_sync_printer->SetBackgroundColorNormal((*counter_sync_printer & 1) ? "#F8F8F8" :"#009688");
+    //btn_sync_printer->SetBackgroundColorNormal((*counter_sync_printer & 1) ? "#F8F8F8" :"#BBD800");
     m_printer_bbl_sync->SetBitmap_((*counter_sync_printer & 1) ? "printer_sync_not" : "printer_sync_ok");
     if (--*counter_sync_printer <= 0)
         timer_sync_printer->Stop();
@@ -2105,7 +2105,7 @@ bool Sidebar::priv::sync_extruder_list(bool &only_external_material, bool is_man
 
 void Sidebar::priv::update_sync_status(const MachineObject *obj)
 {
-    StateColor not_synced_colour(std::pair<wxColour, int>(wxColour("#009688"), StateColor::Normal));
+    StateColor not_synced_colour(std::pair<wxColour, int>(wxColour("#BBD800"), StateColor::Normal));
     auto clear_all_sync_status = [this, &not_synced_colour]() {
         panel_printer_preset->ShowBadge(false);
         panel_printer_bed->ShowBadge(false);
@@ -2479,10 +2479,10 @@ Sidebar::Sidebar(Plater *parent)
 
         struct PanelColors {
             wxColour bg_normal = "#FFFFFF";
-            wxColour bg_focus  = "#E5F0EE";
+            wxColour bg_focus  = "#F8FBE6";
             wxColour bd_normal = "#DBDBDB";
-            wxColour bd_hover  = "#009688";
-            wxColour bd_focus  = "#009688";
+            wxColour bd_hover  = "#BBD800";
+            wxColour bd_focus  = "#BBD800";
         };
         PanelColors panel_color;
 
@@ -2762,8 +2762,8 @@ Sidebar::Sidebar(Plater *parent)
                 std::pair<wxColour, int>(wxColour("#F8F8F8"), StateColor::Hovered),
                 std::pair<wxColour, int>(wxColour("#F8F8F8"), StateColor::Normal));
         StateColor btn_sync_bd_col(
-                std::pair<wxColour, int>(wxColour("#009688"), StateColor::Pressed),
-                std::pair<wxColour, int>(wxColour("#009688"), StateColor::Hovered),
+                std::pair<wxColour, int>(wxColour("#BBD800"), StateColor::Pressed),
+                std::pair<wxColour, int>(wxColour("#BBD800"), StateColor::Hovered),
                 std::pair<wxColour, int>(wxColour("#EEEEEE"), StateColor::Normal));
         btn_sync->SetBackgroundColor(btn_sync_bg_col);
         btn_sync->SetBorderColor(btn_sync_bd_col);
@@ -2961,6 +2961,17 @@ Sidebar::Sidebar(Plater *parent)
     bSizer39->Add(set_btn, 0, wxALIGN_CENTER | wxLEFT, FromDIP(SidebarProps::WideSpacing()));
     bSizer39->AddSpacer(FromDIP(SidebarProps::TitlebarMargin()));
 
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Mosso Slicer exposes one active material at a time. Users can still choose
+    // its preset from the remaining combo box, but cannot add/sync material slots.
+    bSizer39->Hide(p->m_purge_mode_btn);
+    bSizer39->Hide(p->m_flushing_volume_btn);
+    bSizer39->Hide(p->m_bpButton_add_filament);
+    bSizer39->Hide(p->m_bpButton_del_filament);
+    bSizer39->Hide(p->m_bpButton_ams_filament);
+    bSizer39->Hide(p->m_bpButton_set_filament);
+#endif
+
     // add filament content
     p->m_panel_filament_content = new wxScrolledWindow( p->scrolled, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
     p->m_panel_filament_content->SetScrollbars(0, 100, 1, 2);
@@ -3029,7 +3040,7 @@ Sidebar::Sidebar(Plater *parent)
             e.Skip();
             return;
         }
-        p->m_search_bar->SetBorderColor(wxColour("#009688"));
+        p->m_search_bar->SetBorderColor(wxColour("#BBD800"));
         wxPoint pos = this->p->m_search_bar->ClientToScreen(wxPoint(0, 0));
 #ifndef __WXGTK__
         pos.y += this->p->m_search_bar->GetRect().height;
@@ -3154,7 +3165,13 @@ void Sidebar::init_filament_combo(PlaterPresetComboBox **combo, const int filame
     if ((filament_idx % 2) == 0) // Dont add right column item. this one create equal spacing on left, right & middle
         combo_and_btn_sizer->AddSpacer(FromDIP((filament_idx % 2) == 0 ? 12 : 3)); // Content Margin
 
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Mosso Slicer exposes one local material only, so an extruder/material
+    // index would suggest a multi-material capability that is not available.
+    (*combo)->clr_picker->SetLabel(wxEmptyString);
+#else
     (*combo)->clr_picker->SetLabel(wxString::Format("%d", filament_idx + 1));
+#endif
     combo_and_btn_sizer->Add((*combo)->clr_picker, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, FromDIP(SidebarProps::ElementSpacing()) - FromDIP(2)); // ElementSpacing - 2 (from combo box))
     combo_and_btn_sizer->Add(*combo, 1, wxALL | wxEXPAND, FromDIP(2))->SetMinSize({-1, 30 * wxGetApp().em_unit() / 10}); // ORCA ensure height matches with PlaterPresetComboBox
 
@@ -3276,12 +3293,18 @@ void Sidebar::update_all_preset_comboboxes()
                                                       : MainFrame::PrintSelectType::eExportGcode;
         wxString url = from_u8(PrintHost::get_print_host_webui(&cfg));
         wxString apikey;
+        wxString username;
+        wxString password;
         if(url.empty())
             url = wxString::Format("file://%s/web/orca/missing_connection.html", from_u8(resources_dir()));
         else {
             const auto host_type = cfg.option<ConfigOptionEnum<PrintHostType>>("host_type")->value;
             if (cfg.has("printhost_apikey") && (host_type != htSimplyPrint))
                 apikey = cfg.opt_string("printhost_apikey");
+            if (cfg.has("printhost_user"))
+                username = cfg.opt_string("printhost_user");
+            if (cfg.has("printhost_password"))
+                password = cfg.opt_string("printhost_password");
             print_btn_type = (preset_bundle.is_bbl_vendor() || wxGetApp().app_config->get_bool("use_printer_agents"))
                                  ? MainFrame::PrintSelectType::ePrintPlate
                                  : MainFrame::PrintSelectType::eSendGcode;
@@ -3290,7 +3313,7 @@ void Sidebar::update_all_preset_comboboxes()
         if (use_printer_agents)
             p_mainframe->load_printer_url();
         else if (!use_native_device_tab)
-            p_mainframe->load_printer_url(url, apikey);
+            p_mainframe->load_printer_url(url, apikey, username, password);
 
 
         p_mainframe->set_print_button_to_default(print_btn_type);
@@ -3306,6 +3329,11 @@ void Sidebar::update_all_preset_comboboxes()
     }
 
     show_SEMM_buttons();
+
+#if MOSSO_SLICER_LOCAL_ONLY
+    p->m_bpButton_ams_filament->Hide();
+    p->m_bpButton_set_filament->Hide();
+#endif
 
     //p->m_staticText_filament_settings->Update();
 
@@ -4041,6 +4069,9 @@ void Sidebar::on_filaments_delete(size_t filament_id)
 }
 
 void Sidebar::add_filament() {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return;
+#endif
     if (p->combos_filament.size() >= MAXIMUM_EXTRUDER_NUMBER) return;
     wxColour    new_col        = Plater::get_next_color_for_filament();
     add_custom_filament(new_col);
@@ -4107,6 +4138,9 @@ void Sidebar::edit_filament()
 }
 
 void Sidebar::add_custom_filament(wxColour new_col) {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return;
+#endif
     if (is_new_project_in_gcode3mf()) { return; }
     if (p->combos_filament.size() >= MAXIMUM_EXTRUDER_NUMBER) return;
 
@@ -4602,11 +4636,15 @@ void Sidebar::sync_ams_list(bool is_from_big_sync_btn)
 
 bool Sidebar::should_show_SEMM_buttons()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return false;
+#else
     PresetBundle &preset_bundle = *wxGetApp().preset_bundle;
     bool is_bbl_vendor = preset_bundle.is_bbl_vendor();
     auto cfg = preset_bundle.printers.get_edited_preset().config;
 
     return cfg.opt_bool("single_extruder_multi_material") || is_bbl_vendor;
+#endif
 }
 
 void Sidebar::show_SEMM_buttons()
@@ -4641,7 +4679,11 @@ void Sidebar::enable_purge_mode_btn(bool enable)
 {
     if (!p || !p->m_purge_mode_btn)
         return;
+#if MOSSO_SLICER_LOCAL_ONLY
+    p->m_purge_mode_btn->Hide();
+#else
     p->m_purge_mode_btn->Show(enable);
+#endif
     wxGetApp().CallAfter([this]() {
         p->m_panel_filament_title->Layout();
         this->Layout();

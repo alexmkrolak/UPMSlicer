@@ -1,0 +1,5 @@
+{
+  "type": "machine", "name": "WASP 4070 0.4 nozzle", "inherits": "WASP_4070_common", "from": "system", "instantiation": "true",
+  "printer_settings_id": "WASP 4070 0.4 nozzle", "printer_model": "WASP 4070", "printer_variant": "0.4",
+  "nozzle_diameter": ["0.4"], "max_layer_height": ["0.3"], "setting_id": "MOSSO407004"
+}

@@ -416,6 +416,10 @@ void WebViewPanel::OnClose(wxCloseEvent& evt)
 
 void WebViewPanel::OnFreshLoginStatus(wxTimerEvent &event)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) event;
+    return;
+#else
     auto mainframe = Slic3r::GUI::wxGetApp().mainframe;
     if (mainframe && mainframe->m_webview == this) {
         auto* app_config = Slic3r::GUI::wxGetApp().app_config;
@@ -425,6 +429,7 @@ void WebViewPanel::OnFreshLoginStatus(wxTimerEvent &event)
             Slic3r::GUI::wxGetApp().get_login_info(BBL_CLOUD_PROVIDER);
         }
     }
+#endif
 }
 
 void WebViewPanel::SetLoginPanelVisibility(bool bshow)
@@ -517,6 +522,9 @@ void WebViewPanel::ShowNetpluginTip()
 
 void WebViewPanel::SendCloudProvidersInfo()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return;
+#else
     auto* app_config = wxGetApp().app_config;
     if (!app_config)
         return;
@@ -538,6 +546,7 @@ void WebViewPanel::SendCloudProvidersInfo()
 
     wxString strJS = wxString::Format("window.postMessage(%s)", j.dump());
     RunScript(strJS);
+#endif
 }
 
 void WebViewPanel::get_design_staffpick(int offset, int limit, std::function<void(std::string)> callback)
@@ -644,7 +653,9 @@ void WebViewPanel::OnDocumentLoaded(wxWebViewEvent& evt)
             wxLogMessage("%s", "Document loaded; url='" + evt.GetURL() + "'");
     }
     UpdateState();
+#if !MOSSO_SLICER_LOCAL_ONLY
     SendCloudProvidersInfo();
+#endif
 }
 
 void WebViewPanel::OnTitleChanged(wxWebViewEvent &evt)
@@ -681,11 +692,13 @@ void WebViewPanel::OnScriptMessage(wxWebViewEvent& evt)
 {
     BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ": " << evt.GetString().ToUTF8().data();
     // update login status
+#if !MOSSO_SLICER_LOCAL_ONLY
     if (m_LoginUpdateTimer == nullptr) {
         BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " Create Timer";
         m_LoginUpdateTimer = new wxTimer(this, LOGIN_INFO_UPDATE_TIMER_ID);
         m_LoginUpdateTimer->Start(2000);
     }
+#endif
 
     if (wxGetApp().get_mode() == comDevelop)
         wxLogMessage("Script message received; value = %s, handler = %s", evt.GetString(), evt.GetMessageHandler());

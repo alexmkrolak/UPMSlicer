@@ -268,7 +268,7 @@ static wxIcon main_frame_icon(GUI_App::EAppMode app_mode)
     }
     return wxIcon(path, wxBITMAP_TYPE_ICO);
 #else // _WIN32
-    return wxIcon(Slic3r::var("OrcaSlicer_128px.png"), wxBITMAP_TYPE_PNG);
+    return wxIcon(Slic3r::var("MossoSlicer_128px.png"), wxBITMAP_TYPE_PNG);
 #endif // _WIN32
 }
 
@@ -395,7 +395,7 @@ DPIFrame(NULL, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, BORDERLESS_FRAME_
     default:
     case GUI_App::EAppMode::Editor:
         m_taskbar_icon = std::make_unique<OrcaSlicerTaskBarIcon>(wxTBI_DOCK);
-        m_taskbar_icon->SetIcon(wxIcon(Slic3r::var("OrcaSlicer-mac_256px.ico"), wxBITMAP_TYPE_ICO), "OrcaSlicer");
+        m_taskbar_icon->SetIcon(wxIcon(Slic3r::var("MossoSlicer-mac_256px.ico"), wxBITMAP_TYPE_ICO), SLIC3R_APP_NAME);
         break;
     case GUI_App::EAppMode::GCodeViewer:
         break;
@@ -1321,7 +1321,7 @@ void MainFrame::init_tabpanel() {
         wxString url = evt.GetString();
         wxString key = evt.GetAPIkey();
         //select_tab(MainFrame::tpMonitor);
-        m_printer_view->load_url(url, key);
+        m_printer_view->load_url(url, key, evt.GetUsername(), evt.GetPassword());
     });
     m_printer_view->Hide();
 
@@ -1400,7 +1400,7 @@ void MainFrame::show_device(bool should_use_native) {
                 wxString url = evt.GetString();
                 wxString key = evt.GetAPIkey();
                 // select_tab(MainFrame::tpMonitor);
-                m_printer_view->load_url(url, key);
+                m_printer_view->load_url(url, key, evt.GetUsername(), evt.GetPassword());
             });
         }
 
@@ -1516,7 +1516,7 @@ void MainFrame::show_device(bool should_use_native) {
                 wxString url = evt.GetString();
                 wxString key = evt.GetAPIkey();
                 // select_tab(MainFrame::tpMonitor);
-                m_printer_view->load_url(url, key);
+                m_printer_view->load_url(url, key, evt.GetUsername(), evt.GetPassword());
             });
         }
         m_printer_view->Show(false);
@@ -2436,9 +2436,9 @@ void MainFrame::update_side_button_style()
     m_slice_btn->SetExtraSize(wxSize(FromDIP(38), FromDIP(10)));
     m_slice_btn->SetBottomColour(wxColour(0x3B4446));*/
     StateColor m_btn_bg_enable = StateColor(
-        std::pair<wxColour, int>(wxColour(0, 137, 123), StateColor::Pressed),
+        std::pair<wxColour, int>(wxColour(166, 192, 0), StateColor::Pressed),
         std::pair<wxColour, int>(wxColour(48, 221, 112), StateColor::Hovered),
-        std::pair<wxColour, int>(wxColour(0, 150, 136), StateColor::Normal)
+        std::pair<wxColour, int>(wxColour(187, 216, 0), StateColor::Normal)
     );
 
     // m_publish_btn->SetMinSize(wxSize(FromDIP(125), FromDIP(24)));
@@ -3363,6 +3363,7 @@ void MainFrame::init_menubar_as_editor()
         "", nullptr, []() { return true; }, this);
 
     auto top_menu = m_topbar->GetTopMenu();
+#if !MOSSO_SLICER_LOCAL_ONLY
     top_menu->AppendSeparator();
 
         append_menu_item(
@@ -3399,6 +3400,7 @@ void MainFrame::init_menubar_as_editor()
             wxGetApp().open_plugins_dialog();
         },
         "", nullptr, []() { return true; }, this);
+#endif
 
     //m_topbar->AddDropDownMenuItem(preference_item);
     //m_topbar->AddDropDownMenuItem(printer_item);
@@ -3501,6 +3503,7 @@ void MainFrame::init_menubar_as_editor()
                      {return m_plater->is_view3D_shown();; }, this);
 
 #else
+#if !MOSSO_SLICER_LOCAL_ONLY
     // On Mac, the Apple menu ignores non-standard custom items, so add Preset Bundle to the File menu
     fileMenu->AppendSeparator();
     append_menu_item(
@@ -3535,6 +3538,7 @@ void MainFrame::init_menubar_as_editor()
         []() { return true; }, this);
 
     fileMenu->AppendSeparator();
+#endif
 
     m_menubar->Append(fileMenu, wxString::Format("&%s", _L("File")));
     if (editMenu)
@@ -4333,12 +4337,14 @@ void MainFrame::load_url(wxString url)
     wxQueueEvent(this, evt);
 }
 
-void MainFrame::load_printer_url(wxString url, wxString apikey)
+void MainFrame::load_printer_url(wxString url, wxString apikey, wxString username, wxString password)
 {
     BOOST_LOG_TRIVIAL(trace) << "load_printer_url:" << url;
     auto evt = new LoadPrinterViewEvent(EVT_LOAD_PRINTER_URL, this->GetId());
     evt->SetString(url);
     evt->SetAPIkey(apikey);
+    evt->SetUsername(username);
+    evt->SetPassword(password);
     wxQueueEvent(this, evt);
 }
 
@@ -4363,11 +4369,17 @@ void MainFrame::load_printer_url()
     }
     wxString url = from_u8(PrintHost::get_print_host_webui(&cfg));
     wxString apikey;
+    wxString username;
+    wxString password;
     const auto host_type = cfg.option<ConfigOptionEnum<PrintHostType>>("host_type")->value;
     if (cfg.has("printhost_apikey") && host_type != htSimplyPrint)
         apikey = cfg.opt_string("printhost_apikey");
+    if (cfg.has("printhost_user"))
+        username = cfg.opt_string("printhost_user");
+    if (cfg.has("printhost_password"))
+        password = cfg.opt_string("printhost_password");
     if (!url.empty()) {
-        load_printer_url(url, apikey);
+        load_printer_url(url, apikey, username, password);
     }
 }
 
@@ -4509,7 +4521,7 @@ SettingsDialog::SettingsDialog(MainFrame* mainframe)
         SetIcon(wxIcon(szExeFileName, wxBITMAP_TYPE_ICO));
     }
 #else
-    SetIcon(wxIcon(var("OrcaSlicer_128px.png"), wxBITMAP_TYPE_PNG));
+    SetIcon(wxIcon(var("MossoSlicer_128px.png"), wxBITMAP_TYPE_PNG));
 #endif // _WIN32
 
     //just hide the Frame on closing

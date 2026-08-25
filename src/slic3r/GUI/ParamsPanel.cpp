@@ -282,6 +282,10 @@ ParamsPanel::ParamsPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
         bool isDevMode = wxGetApp().get_mode() == comDevelop;
         m_mode_view->SetSelection(mode_to_selection(isDevMode ? comExpert : wxGetApp().get_saved_mode()));
         m_mode_view->SetDevMode(isDevMode);
+#if MOSSO_SLICER_LOCAL_ONLY
+        m_mode_icon->Hide();
+        m_mode_view->Hide();
+#endif
 
         // BBS: new layout
         //m_search_btn = new ScalableButton(m_top_panel, wxID_ANY, "search", wxEmptyString, wxDefaultSize, wxDefaultPosition, wxBU_EXACTFIT | wxNO_BORDER, true);

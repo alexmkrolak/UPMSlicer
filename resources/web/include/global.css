@@ -12,17 +12,17 @@
 
 /*/// COLORS ///*/
 :root { 
-	--main-color			: #009688;
-	--main-color-hover		: #26A69A;
-	--main-color-fixed		: #009688;
+	--main-color			: #BBD800;
+	--main-color-hover		: #A6C000;
+	--main-color-fixed		: #BBD800;
 	--bg-color				: #FFFFFF;
 	--bg-color-secondary	: #F4F4F4;
 	--bg-color-alt			: #F0F0F0;
 	--fg-color-text			: #262E30;
 	--fg-color-label		: #363636;
 	--fg-color-disabled		: #ACACAC;
-	--focus-bg-item			: #BFE1DE;
-	--focus-bg-box			: #E5F0EE;
+	--focus-bg-item			: #EEF5BF;
+	--focus-bg-box			: #F8FBE6;
 	--border-color			: #DBDBDB;
 	--icon-color			: #7C8282;
 	--button-fg-light		: #FEFEFE;
@@ -36,17 +36,17 @@
   
 @media (prefers-color-scheme: dark) { 
 :root {
-	--main-color			: #00675B;
-	--main-color-hover		: #008172;
-	--main-color-fixed		: #009688;
+	--main-color			: #BBD800;
+	--main-color-hover		: #A6C000;
+	--main-color-fixed		: #BBD800;
 	--bg-color				: #2D2D31;
 	--bg-color-secondary	: #36363B;
 	--bg-color-alt			: #242428;
 	--fg-color-text			: #EFEFF0;
 	--fg-color-label		: #B2B3B5;
 	--fg-color-disabled		: #65656A;
-	--focus-bg-item			: #223C3C;
-	--focus-bg-box			: #283232;
+	--focus-bg-item			: #515825;
+	--focus-bg-box			: #3B3E2C;
 	--border-color			: #4A4A51;
 	--icon-color			: #949494;
 	--button-fg-light		: #FEFEFE;
@@ -126,8 +126,8 @@
 	width: 120px;
 }
 
-.ButtonStyleConfirm        { background: var(--main-color        ); color: var(--button-fg-light   )}
-.ButtonStyleConfirm:hover  { background: var(--main-color-hover  ); color: var(--button-fg-light   )}
+.ButtonStyleConfirm        { background: var(--main-color        ); color: var(--button-fg-text    )}
+.ButtonStyleConfirm:hover  { background: var(--main-color-hover  ); color: var(--button-fg-text    )}
 .ButtonStyleRegular        { background: var(--button-bg-normal  ); color: var(--button-fg-text    )}
 .ButtonStyleRegular:hover  { background: var(--button-bg-hover   ); color: var(--button-fg-text    )}
 .ButtonStyleAlert          { background: var(--button-bg-normal  ); color: var(--button-fg-text    )}

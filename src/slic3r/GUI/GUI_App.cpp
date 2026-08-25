@@ -272,7 +272,7 @@ bool is_associate_files(std::wstring extend)
     wchar_t app_path[MAX_PATH];
     ::GetModuleFileNameW(nullptr, app_path, sizeof(app_path));
 
-    std::wstring prog_id             = L" Orca.Slicer.1";
+    std::wstring prog_id             = L"MossoSlicer.1";
     std::wstring reg_base            = L"Software\\Classes";
     std::wstring reg_extension       = reg_base + L"\\." + extend;
 
@@ -329,12 +329,13 @@ public:
         m_bg_color = StateColor::darkModeColorFor(wxColour("#FFFFFF"));
         m_fg_color = StateColor::darkModeColorFor(wxColour("#6B6A6A"));
         m_progress_bg_color = StateColor::darkModeColorFor(wxColour("#DFDFDF"));
-        m_progress_fg_color = StateColor::darkModeColorFor(wxColour("#009688"));
+        m_progress_fg_color = StateColor::darkModeColorFor(wxColour("#BBD800"));
         m_progress_h = FromDIP(6);
         bool dark_mode = m_fg_color != wxColour("#6B6A6A");
         wxSize sz  = m_window->GetClientSize();
         BitmapCache bmp_cache;
-        m_logo_bmp = *bmp_cache.load_svg(dark_mode ? "splash_logo_dark" : "splash_logo", sz.GetWidth(), sz.GetHeight());
+        m_logo_bmp = wxBitmap(Slic3r::var("MossoSlicer_192px.png"), wxBITMAP_TYPE_PNG);
+        scale_font(m_font_brand, 1.65f);
 
         m_window->Bind(wxEVT_PAINT, &SplashScreen::OnPaint, this);
         m_window->Refresh();
@@ -348,11 +349,18 @@ public:
 
         dc.SetBackground(wxBrush(m_bg_color));
         dc.Clear();
-        if (m_logo_bmp.IsOk())
-            dc.DrawBitmap(m_logo_bmp, 0, 0, true);
+        if (m_logo_bmp.IsOk()) {
+            const int logo_x = (c_sz.GetWidth() - m_logo_bmp.GetWidth()) / 2;
+            dc.DrawBitmap(m_logo_bmp, logo_x, c_sz.GetHeight() * 0.12, true);
+        }
 
         wxRect rc = wxRect(0, 0, c_sz.GetWidth(), 0);
         dc.SetTextForeground(m_fg_color);
+
+        dc.SetFont(m_font_brand);
+        rc.y      = c_sz.GetHeight() * 0.55;
+        rc.height = dc.GetTextExtent(SLIC3R_APP_NAME).GetHeight();
+        dc.DrawLabel(SLIC3R_APP_NAME, rc, wxALIGN_CENTER);
 
         dc.SetFont(m_font_version);
         rc.y      = c_sz.GetHeight() * 0.72;
@@ -434,6 +442,7 @@ private:
 
     wxFont m_font_version = Label::Body_16;
     wxFont m_font_action  = Label::Body_16;
+    wxFont m_font_brand   = Label::Head_24;
 };
 
 #ifdef __linux__
@@ -733,7 +742,7 @@ static void generic_exception_handle()
         // and terminate the app so it is at least certain to happen now.
         BOOST_LOG_TRIVIAL(error) << boost::format("std::bad_alloc exception: %1%") % ex.what();
         flush_logs();
-        wxString errmsg = wxString::Format(_L("OrcaSlicer will terminate because of running out of memory. "
+        wxString errmsg = wxString::Format(_L("Mosso Slicer will terminate because of running out of memory. "
                                               "It may be a bug. It will be appreciated if you report the issue to our team."));
         wxMessageBox(errmsg + "\n\n" + wxString(ex.what()), _L("Fatal error"), wxOK | wxICON_ERROR);
 
@@ -742,7 +751,7 @@ static void generic_exception_handle()
      } catch (const boost::io::bad_format_string& ex) {
      	BOOST_LOG_TRIVIAL(error) << boost::format("Uncaught exception: %1%") % ex.what();
         	flush_logs();
-        wxString errmsg = _L("OrcaSlicer will terminate because of a localization error. "
+        wxString errmsg = _L("Mosso Slicer will terminate because of a localization error. "
                              "It will be appreciated if you report the specific scenario this issue happened.");
         wxMessageBox(errmsg + "\n\n" + wxString(ex.what()), _L("Critical error"), wxOK | wxICON_ERROR);
         std::terminate();
@@ -750,7 +759,7 @@ static void generic_exception_handle()
     } catch (const std::exception& ex) {
         BOOST_LOG_TRIVIAL(error) << boost::format("Uncaught exception: %1%") % ex.what();
         flush_logs();
-        wxLogError(format_wxstr(_L("OrcaSlicer got an unhandled exception: %1%"), ex.what()));
+        wxLogError(format_wxstr(_L("Mosso Slicer got an unhandled exception: %1%"), ex.what()));
         throw;
     }
 //#endif
@@ -996,6 +1005,7 @@ void GUI_App::post_init()
 
     // Orca: notify users upgrading from a pre-2.4.0 version that profile syncing
     // moved from Bambu Cloud to Orca Cloud.
+#if !MOSSO_SLICER_LOCAL_ONLY
     if (is_editor() && m_last_config_version && m_last_config_version->valid()
         && *m_last_config_version < Semver(2, 4, 0)) {
         CallAfter([] {
@@ -1020,6 +1030,7 @@ void GUI_App::post_init()
             dlg.ShowModal();
         });
     }
+#endif
 
     if(!m_networking_need_update && m_agent) {
         m_agent->set_on_ssdp_msg_fn(
@@ -2476,7 +2487,7 @@ void GUI_App::init_webview_runtime()
     }
 
     BOOST_LOG_TRIVIAL(warning) << "WebView2 runtime not found; prompting user to install.";
-    int nRet = wxMessageBox(_L("Orca Slicer requires the Microsoft WebView2 Runtime to operate certain features.\nClick Yes to install it now."),
+    int nRet = wxMessageBox(_L("Mosso Slicer requires the Microsoft WebView2 Runtime to operate certain features.\nClick Yes to install it now."),
                             _L("WebView2 Runtime"), wxYES_NO);
     if (nRet != wxYES) {
         BOOST_LOG_TRIVIAL(warning) << "User declined WebView2 runtime installation.";
@@ -2498,7 +2509,7 @@ void GUI_App::init_webview_runtime()
         BOOST_LOG_TRIVIAL(error) << "WebView2 runtime installation failed or still not detected.";
         wxMessageBox(_L("The Microsoft WebView2 Runtime could not be installed.\n"
                         "Some features, including the setup wizard, may appear blank until it is installed.\n"
-                        "Please install it manually from https://developer.microsoft.com/microsoft-edge/webview2/ and restart Orca Slicer."),
+                        "Please install it manually from https://developer.microsoft.com/microsoft-edge/webview2/ and restart Mosso Slicer."),
                      _L("WebView2 Runtime"), wxOK | wxICON_WARNING);
     }
 }
@@ -2567,6 +2578,23 @@ void GUI_App::init_app_config()
         m_datadir_redefined = true;
     }
 
+    // The pre-branding builds stored their settings in an
+    // OrcaSlicer-named config file inside a user-supplied --datadir. Migrate
+    // that single file in place so existing UPM presets and selections survive
+    // the identity split. A normal OrcaSlicer profile is never imported because
+    // its data directory is different.
+#ifdef USE_JSON_CONFIG
+    const char* config_extension = ".conf";
+#else
+    const char* config_extension = ".ini";
+#endif
+    const boost::filesystem::path upm_config = boost::filesystem::path(Slic3r::data_dir()) / (std::string(SLIC3R_APP_KEY) + config_extension);
+    const boost::filesystem::path legacy_upm_config = boost::filesystem::path(Slic3r::data_dir()) / (std::string("OrcaSlicer") + config_extension);
+    if (!boost::filesystem::exists(upm_config) && boost::filesystem::exists(legacy_upm_config)) {
+        boost::system::error_code ec;
+        boost::filesystem::copy_file(legacy_upm_config, upm_config, ec);
+    }
+
     // start log here
     std::time_t       t        = std::time(0);
     std::tm *         now_time = std::localtime(&t);
@@ -2580,7 +2608,7 @@ void GUI_App::init_app_config()
     set_log_path_and_level(log_filename, 3);
 #endif
 
-    BOOST_LOG_TRIVIAL(info) << boost::format("gui mode, Current OrcaSlicer Version %1% build %2%") % SoftFever_VERSION % GIT_COMMIT_HASH;
+    BOOST_LOG_TRIVIAL(info) << boost::format("gui mode, Current %1% Version %2% build %3%") % SLIC3R_APP_NAME % SoftFever_VERSION % GIT_COMMIT_HASH;
 
     //BBS: remove GCodeViewer as seperate APP logic
 	if (!app_config)
@@ -3024,7 +3052,7 @@ bool GUI_App::on_init_inner()
             RichMessageDialog
                 dlg(nullptr,
                     wxString::Format(_L("%s\nDo you want to continue?"), msg),
-                    "OrcaSlicer", wxICON_QUESTION | wxYES_NO);
+                    SLIC3R_APP_NAME, wxICON_QUESTION | wxYES_NO);
             dlg.ShowCheckBox(_L("Remember my choice"));
             if (dlg.ShowModal() != wxID_YES) return false;
 
@@ -3161,7 +3189,7 @@ bool GUI_App::on_init_inner()
                /* wxString tips = wxString::Format(_L("Click to download new version in default browser: %s"), version_info.version_str);
                 DownloadDialog dialog(this->mainframe,
                     tips,
-                    _L("New version of Orca Slicer"),
+                    _L("New version of Mosso Slicer"),
                     false,
                     wxCENTER | wxICON_INFORMATION);
 
@@ -3212,7 +3240,7 @@ bool GUI_App::on_init_inner()
                 wxString tips = wxString::Format(_L("Click to download new version in default browser: %s"), version_str);
                 DownloadDialog dialog(this->mainframe,
                     tips,
-                    _L("OrcaSlicer needs an update"),
+                    _L("Mosso Slicer needs an update"),
                     false,
                     wxCENTER | wxICON_INFORMATION);
                 dialog.SetExtendedMessage(description_text);
@@ -3302,10 +3330,12 @@ bool GUI_App::on_init_inner()
 
     // Set cloud plugin directory from previous session so cloud-installed
     // plugins are discovered even before the network agent is ready.
+#if !MOSSO_SLICER_LOCAL_ONLY
     const std::string preset_folder = app_config->get("preset_folder");
     if (!preset_folder.empty()) {
         plugin_mgr.set_cloud_user(preset_folder);
     }
+#endif
 
     plugin_mgr.discover_plugins(false, true);
 
@@ -3324,6 +3354,13 @@ bool GUI_App::on_init_inner()
     copy_network_if_available();
     on_init_network();
 
+#if MOSSO_SLICER_LOCAL_ONLY
+    plugin_mgr.set_cloud_agent(nullptr);
+    plugin_mgr.unload_cloud_plugins();
+    plugin_mgr.clear_cloud_plugin_metadata();
+    plugin_mgr.set_cloud_user("");
+    enable_user_preset_folder(false);
+#else
     if (m_agent)
         plugin_mgr.set_cloud_agent(std::dynamic_pointer_cast<OrcaCloudServiceAgent>(m_agent->get_cloud_agent()));
 
@@ -3351,6 +3388,7 @@ bool GUI_App::on_init_inner()
         enable_user_preset_folder(false);
         plugin_mgr.set_cloud_user("");
     }
+#endif
 
     // BBS if load user preset failed
     //if (loaded_preset_result != 0) {
@@ -3528,7 +3566,7 @@ bool GUI_App::on_init_inner()
         m_config_corrupted = false;
         show_error(nullptr,
                    _u8L(
-                       "The OrcaSlicer configuration file may be corrupted and cannot be parsed.\nOrcaSlicer has attempted to recreate the "
+                       "The Mosso Slicer configuration file may be corrupted and cannot be parsed.\nMosso Slicer has attempted to recreate the "
                        "configuration file.\nPlease note, application settings will be lost, but printer profiles will not be affected."));
     }
     return true;
@@ -4283,7 +4321,7 @@ void GUI_App::UpdateDarkUI(wxWindow* window, bool highlited/* = false*/, bool ju
         auto orig_col = window->GetBackgroundColour();
         auto bg_col = StateColor::darkModeColorFor(orig_col);
         // there are cases where the background color of an item is bright, specifically:
-        // * the background color of a button: #009688  -- 73
+        // * the background color of a button: #BBD800  -- 73
         if (bg_col != orig_col) {
             window->SetBackgroundColour(bg_col);
         }
@@ -4704,6 +4742,11 @@ void GUI_App::ShowDownNetPluginDlg() {
 
 void GUI_App::ShowUserLogin(bool show, const std::string& provider)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) show;
+    (void) provider;
+    return;
+#else
     // Show user Login Dialog for specified cloud
     if (show) {
         try {
@@ -4718,6 +4761,7 @@ void GUI_App::ShowUserLogin(bool show, const std::string& provider)
         if (login_dlg)
             login_dlg->EndModal(wxID_OK);
     }
+#endif
 }
 
 
@@ -4939,6 +4983,11 @@ wxString GUI_App::transition_tridid(int trid_id) const
 //BBS
 void GUI_App::request_login(bool show_user_info, const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) show_user_info;
+    (void) provider;
+    return;
+#endif
     ShowUserLogin(true, provider);
 
     if (show_user_info) {
@@ -4950,6 +4999,10 @@ void GUI_App::request_login(bool show_user_info, const std::string& provider/* =
 
 void GUI_App::get_login_info(const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) provider;
+    return;
+#endif
     if (m_agent) {
         if (m_agent->is_user_login(provider)) {
             std::string login_cmd = m_agent->build_login_cmd(provider);
@@ -4967,10 +5020,15 @@ void GUI_App::get_login_info(const std::string& provider/* = ORCA_CLOUD_PROVIDER
 
 bool GUI_App::is_user_login(const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) provider;
+    return false;
+#else
     if (m_agent) {
         return m_agent->is_user_login(provider);
     }
     return false;
+#endif
 }
 
 const std::string& GUI_App::get_printer_cloud_provider() const
@@ -4983,6 +5041,10 @@ const std::string& GUI_App::get_printer_cloud_provider() const
 
 bool GUI_App::check_login(const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) provider;
+    return false;
+#else
     bool result = false;
     if (m_agent) {
         result = m_agent->is_user_login(provider);
@@ -4992,10 +5054,16 @@ bool GUI_App::check_login(const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
         ShowUserLogin(true, provider);
     }
     return result;
+#endif
 }
 
 void GUI_App::request_user_handle(int online_login, const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) online_login;
+    (void) provider;
+    return;
+#endif
     auto evt = new wxCommandEvent(EVT_USER_LOGIN_HANDLE);
     evt->SetInt(online_login);
     evt->SetString(wxString::FromUTF8(provider));
@@ -5004,6 +5072,11 @@ void GUI_App::request_user_handle(int online_login, const std::string& provider/
 
 void GUI_App::request_user_login(int online_login, const std::string& provider/* = ORCA_CLOUD_PROVIDER*/)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) online_login;
+    (void) provider;
+    return;
+#endif
     auto evt = new wxCommandEvent(EVT_USER_LOGIN);
     evt->SetInt(online_login);
     evt->SetString(wxString::FromUTF8(provider));
@@ -5082,6 +5155,25 @@ std::string GUI_App::handle_web_request(std::string cmd)
         boost::optional<std::string> command = root.get_optional<std::string>("command");
         if (command.has_value()) {
             std::string command_str = command.value();
+#if MOSSO_SLICER_LOCAL_ONLY
+            static const std::unordered_set<std::string> local_only_blocked_commands = {
+                "get_login_info",
+                "get_orca_login_info",
+                "get_bambu_login_info",
+                "homepage_login_or_register",
+                "homepage_orca_login_or_register",
+                "homepage_bambu_login_or_register",
+                "homepage_logout",
+                "homepage_orca_logout",
+                "homepage_bambu_logout",
+                "homepage_modeldepot",
+                "modelmall_model_open",
+                "request_project_download",
+                "open_project",
+            };
+            if (local_only_blocked_commands.count(command_str))
+                return "";
+#endif
             static const std::unordered_set<std::string> stealth_blocked_info_commands = {
                 "get_login_info",
                 "get_orca_login_info",
@@ -7014,6 +7106,10 @@ void GUI_App::sync_preset(Preset* preset, bool force)
 
 void GUI_App::update_single_bundle(wxCommandEvent& evt)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) evt;
+    return;
+#endif
     if (!m_agent || !m_agent->is_user_login()) return;
     auto orca_agent = std::dynamic_pointer_cast<OrcaCloudServiceAgent>(m_agent->get_cloud_agent());
     if (!orca_agent) return;
@@ -7074,6 +7170,11 @@ void GUI_App::update_single_bundle(wxCommandEvent& evt)
 
 int GUI_App::sync_bundle(std::string bundle_id, std::string version)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) bundle_id;
+    (void) version;
+    return -1;
+#endif
     // if(preset_bundle->bundles.pauseReads.load())
     // {
     //     BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << __LINE__ << "ORCA : Update thread sync_bundle function yielded to main thread. 1";
@@ -7205,6 +7306,9 @@ int GUI_App::sync_bundle(std::string bundle_id, std::string version)
 
 void GUI_App::check_bundle_updates()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return;
+#endif
     if (!m_agent || !m_agent->is_user_login()) return;
     auto orca_agent = std::dynamic_pointer_cast<OrcaCloudServiceAgent>(m_agent->get_cloud_agent());
     if (!orca_agent) return;
@@ -7309,8 +7413,13 @@ void GUI_App::check_bundle_updates()
 
 bool GUI_App::unsubscribe_bundle(const std::string& id)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    (void) id;
+    return false;
+#else
     auto orca_agent = std::dynamic_pointer_cast<OrcaCloudServiceAgent>(m_agent->get_cloud_agent());
     return orca_agent->unsubscribe_bundle(id);
+#endif
 }
 
 void GUI_App::start_sync_user_preset(bool with_progress_dlg)
@@ -7873,7 +7982,7 @@ int GUI_App::GetSingleChoiceIndex(const wxString& message,
 // select language from the list of installed languages
 bool GUI_App::select_language()
 {
-	wxArrayString translations = wxTranslations::Get()->GetAvailableTranslations(SLIC3R_APP_KEY);
+	wxArrayString translations = wxTranslations::Get()->GetAvailableTranslations(SLIC3R_TRANSLATION_CATALOG);
     std::vector<const wxLanguageInfo*> language_infos;
     language_infos.emplace_back(wxLocale::GetLanguageInfo(wxLANGUAGE_ENGLISH));
     for (size_t i = 0; i < translations.GetCount(); ++ i) {
@@ -7948,7 +8057,7 @@ bool GUI_App::load_language(wxString language, bool initial)
     	// Get the active language from PrusaSlicer.ini, or empty string if the key does not exist.
         language = app_config->get("language");
         if (! language.empty())
-        	BOOST_LOG_TRIVIAL(info) << boost::format("language provided by OrcaSlicer.conf: %1%") % language;
+			BOOST_LOG_TRIVIAL(info) << boost::format("language provided by %1%.conf: %2%") % SLIC3R_APP_KEY % language;
         else {
             // Get the system language.
             const wxLanguage lang_system = wxLanguage(wxLocale::GetSystemLanguage());
@@ -7977,7 +8086,7 @@ bool GUI_App::load_language(wxString language, bool initial)
                     // There seems to be a support for that on Windows and OSX, while on Linuxes the code just returns wxLocale::GetSystemLanguage().
                     // The last parameter gets added to the list of detected dictionaries. This is a workaround
                     // for not having the English dictionary. Let's hope wxWidgets of various versions process this call the same way.
-                    wxString best_language = wxTranslations::Get()->GetBestTranslation(SLIC3R_APP_KEY, wxLANGUAGE_ENGLISH);
+                    wxString best_language = wxTranslations::Get()->GetBestTranslation(SLIC3R_TRANSLATION_CATALOG, wxLANGUAGE_ENGLISH);
                     if (!best_language.IsEmpty()) {
                         m_language_info_best = wxLocale::FindLanguageInfo(best_language);
                         BOOST_LOG_TRIVIAL(info) << boost::format("Best translation language detected (may be different from user locales): %1%") %
@@ -8005,7 +8114,7 @@ bool GUI_App::load_language(wxString language, bool initial)
 	}
 
 	if (language_info != nullptr && language_info->LayoutDirection == wxLayout_RightToLeft) {
-    	BOOST_LOG_TRIVIAL(trace) << boost::format("The following language code requires right to left layout, which is not supported by OrcaSlicer: %1%") % language_info->CanonicalName.ToUTF8().data();
+		BOOST_LOG_TRIVIAL(trace) << boost::format("The following language code requires right to left layout, which is not supported by %1%: %2%") % SLIC3R_APP_NAME % language_info->CanonicalName.ToUTF8().data();
 		language_info = nullptr;
 	}
 
@@ -8124,14 +8233,14 @@ bool GUI_App::load_language(wxString language, bool initial)
 
     if (!wxLocale::IsAvailable(locale_language_info->Language)) {
     	// Loading the language dictionary failed.
-	    wxString message = wxString::Format(_L("Switching Orca Slicer to language %s failed."), requested_language_code);
+	    wxString message = wxString::Format(_L("Switching %s to language %s failed."), wxString(SLIC3R_APP_NAME), requested_language_code);
 #if !defined(_WIN32) && !defined(__APPLE__)
         // likely some linux system
         message += _L("\nYou may need to reconfigure the missing locales, likely by running the \"locale-gen\" and \"dpkg-reconfigure locales\" commands.\n");
 #endif
         if (initial)
         	message + "\n\nApplication will close.";
-        wxMessageBox(message, _L("Orca Slicer - Switching language failed"), wxOK | wxICON_ERROR);
+        wxMessageBox(message, wxString(SLIC3R_APP_NAME) + _L(" - Switching language failed"), wxOK | wxICON_ERROR);
         if (initial)
 			std::exit(EXIT_FAILURE);
 		else
@@ -8146,7 +8255,7 @@ bool GUI_App::load_language(wxString language, bool initial)
     // Override language at the active wxTranslations class (which is stored in the active m_wxLocale)
     // to load possibly different dictionary, for example, load Czech dictionary for Slovak language.
     wxTranslations::Get()->SetLanguage(language_dict);
-    m_wxLocale->AddCatalog(SLIC3R_APP_KEY);
+    m_wxLocale->AddCatalog(SLIC3R_TRANSLATION_CATALOG);
     m_active_language_code = requested_language_code;
     m_imgui->set_language(into_u8(requested_language_code));
 
@@ -8205,15 +8314,23 @@ std::string effective_mode_to_string(ConfigOptionMode mode)
 
 ConfigOptionMode GUI_App::get_saved_mode()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return comExpert;
+#else
     if (!app_config->has("user_mode"))
         return comSimple;
 
     return saved_mode_from_string(app_config->get("user_mode"));
+#endif
 }
 
 ConfigOptionMode GUI_App::get_mode()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return comExpert;
+#else
     return app_config->get_bool("developer_mode") ? comDevelop : get_saved_mode();
+#endif
 }
 
 std::string GUI_App::get_saved_mode_str()
@@ -8228,11 +8345,15 @@ std::string GUI_App::get_mode_str()
 
 void GUI_App::save_mode(const /*ConfigOptionMode*/int mode)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    app_config->set("user_mode", "expert");
+#else
     const auto saved_mode = mode == comExpert ? comExpert :
                             mode == comAdvanced ? comAdvanced :
                             mode == comSimple ? comSimple :
                             get_saved_mode();
     app_config->set("user_mode", saved_mode_to_string(saved_mode));
+#endif
     update_mode();
 }
 
@@ -8957,6 +9078,16 @@ void GUI_App::process_delete_presets()
 
 void GUI_App::delete_preset_from_cloud(std::string setting_id, std::string preset_file_path)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    // A preset imported from an upstream installation may still carry cloud
+    // metadata. Remove that sidecar locally instead of queuing a remote delete.
+    (void) setting_id;
+    fs::path local_info_path = fs::path(preset_file_path);
+    local_info_path.replace_extension("info");
+    if (fs::exists(local_info_path))
+        boost::nowide::remove(local_info_path.string().c_str());
+    return;
+#endif
     std::scoped_lock l(mutex_delete_cache_presets);
     fs::path info_path = fs::path(preset_file_path);
     info_path.replace_extension("info");
@@ -9656,6 +9787,11 @@ void GUI_App::window_pos_center(wxTopLevelWindow *window)
 
 bool GUI_App::config_wizard_startup()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    // The supported catalogue is preinstalled by AppConfig::set_defaults().
+    // Do not interrupt launch with OrcaSlicer's first-run setup wizard.
+    return false;
+#else
     if (!m_app_conf_exists || preset_bundle->printers.only_default_printers()) {
         BOOST_LOG_TRIVIAL(info) << "run wizard...";
         run_wizard(ConfigWizard::RR_DATA_EMPTY);
@@ -9672,6 +9808,7 @@ bool GUI_App::config_wizard_startup()
         return true;
     }*/
     return false;
+#endif
 }
 
 void GUI_App::check_updates(const bool verbose)
@@ -9813,8 +9950,8 @@ void GUI_App::associate_files(std::wstring extend)
     ::GetModuleFileNameW(nullptr, app_path, sizeof(app_path));
 
     std::wstring prog_path = L"\"" + std::wstring(app_path) + L"\"";
-    std::wstring prog_id = L" Orca.Slicer.1";
-    std::wstring prog_desc = L"OrcaSlicer";
+    std::wstring prog_id = L"MossoSlicer.1";
+    std::wstring prog_desc = L"Mosso Slicer";
     std::wstring prog_command = prog_path + L" \"%1\"";
     std::wstring reg_base = L"Software\\Classes";
     std::wstring reg_extension = reg_base + L"\\." + extend;
@@ -9840,8 +9977,8 @@ void GUI_App::disassociate_files(std::wstring extend)
     ::GetModuleFileNameW(nullptr, app_path, sizeof(app_path));
 
     std::wstring prog_path = L"\"" + std::wstring(app_path) + L"\"";
-    std::wstring prog_id = L" Orca.Slicer.1";
-    std::wstring prog_desc = L"OrcaSlicer";
+    std::wstring prog_id = L"MossoSlicer.1";
+    std::wstring prog_desc = L"Mosso Slicer";
     std::wstring prog_command = prog_path + L" \"%1\"";
     std::wstring reg_base = L"Software\\Classes";
     std::wstring reg_extension = reg_base + L"\\." + extend;

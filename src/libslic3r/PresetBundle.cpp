@@ -78,6 +78,37 @@ const char *PresetBundle::ORCA_DEFAULT_FILAMENT = "Generic PLA @System";
 const char *PresetBundle::ORCA_FILAMENT_LIBRARY = "OrcaFilamentLibrary";
 const char *PresetBundle::ORCA_DEFAULT_FILAMENT_PLACEHOLDER = "Default Filament";
 
+#if MOSSO_SLICER_LOCAL_ONLY
+static void enforce_mosso_single_tool_config(DynamicPrintConfig &config)
+{
+    for (const char *key : {
+             "single_extruder_multi_material", "single_extruder_multi_material_priming",
+             "enable_prime_tower", "ooze_prevention", "flush_into_infill",
+             "flush_into_objects", "flush_into_support", "manual_filament_change",
+             "purge_in_prime_tower", "enable_filament_ramming",
+             "tool_change_on_wipe_tower", "wait_for_temp_on_wipe_tower",
+             "interlocking_beam", "interface_shells"}) {
+        if (auto *option = config.option<ConfigOptionBool>(key, false))
+            option->value = false;
+    }
+    for (const char *key : {
+             "outer_wall_filament_id", "inner_wall_filament_id", "sparse_infill_filament_id",
+             "internal_solid_filament_id", "top_surface_filament_id", "bottom_surface_filament_id",
+             "wipe_tower_filament", "support_filament", "support_interface_filament"}) {
+        if (auto *option = config.option<ConfigOptionInt>(key, false))
+            option->value = 0;
+    }
+    for (const char *key : {"retract_length_toolchange", "retract_restart_extra_toolchange", "filament_toolchange_delay"}) {
+        if (auto *option = config.option<ConfigOptionFloats>(key, false))
+            std::fill(option->values.begin(), option->values.end(), 0.0);
+    }
+    if (auto *option = config.option<ConfigOptionFloat>("machine_tool_change_time", false))
+        option->value = 0.0;
+    if (auto *option = config.option<ConfigOptionString>("change_filament_gcode", false))
+        option->value.clear();
+}
+#endif
+
 DynamicPrintConfig PresetBundle::construct_full_config(
     Preset& in_printer_preset,
     Preset& in_print_preset,
@@ -87,6 +118,15 @@ DynamicPrintConfig PresetBundle::construct_full_config(
     std::optional<std::vector<int>> filament_maps_new,
     std::optional<std::vector<int>> filament_volume_maps_new)
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Mosso Slicer is a deliberately single-tool product. Normalize imported
+    // presets/projects at the composition boundary so hidden legacy settings
+    // cannot produce tool-change G-code.
+    in_printer_preset.set_num_extruders(1);
+    if (in_filament_presets.size() > 1)
+        in_filament_presets.erase(in_filament_presets.begin() + 1, in_filament_presets.end());
+#endif
+
     DynamicPrintConfig &printer_config = in_printer_preset.config;
     DynamicPrintConfig &print_config   = in_print_preset.config;
 
@@ -282,6 +322,9 @@ DynamicPrintConfig PresetBundle::construct_full_config(
     add_if_some_non_empty(std::move(print_compatible_printers), "print_compatible_printers");
 
     out.option<ConfigOptionEnumGeneric>("printer_technology", true)->value = ptFFF;
+#if MOSSO_SLICER_LOCAL_ONLY
+    enforce_mosso_single_tool_config(out);
+#endif
     return out;
 }
 
@@ -2266,6 +2309,10 @@ std::pair<PresetsConfigSubstitutions, std::string> PresetBundle::load_system_pre
     std::vector<std::string> other_vendors;
     other_vendors.reserve(vendor_names.size());
     for (auto& vn : vendor_names) {
+#if MOSSO_SLICER_LOCAL_ONLY
+        if (vn != "Mosso")
+            continue;
+#endif
         if (vn == ORCA_FILAMENT_LIBRARY)
             orca_lib_vendor = vn;
         else if (!(validation_mode && !vendor_to_validate.empty() && vn != vendor_to_validate))
@@ -2370,6 +2417,10 @@ std::pair<PresetsConfigSubstitutions, std::string> PresetBundle::load_system_mod
             std::string vendor_name = dir_entry.path().filename().string();
             // Remove the .json suffix.
             vendor_name.erase(vendor_name.size() - 5);
+#if MOSSO_SLICER_LOCAL_ONLY
+            if (vendor_name != "Mosso")
+                continue;
+#endif
             try {
                 // Load the config bundle, flatten it.
                 append(substitutions, load_vendor_configs_from_json(dir.string(), vendor_name, PresetBundle::LoadVendorOnly, compatibility_rule).first);
@@ -2405,6 +2456,10 @@ std::pair<PresetsConfigSubstitutions, std::string> PresetBundle::load_system_fil
             std::string vendor_name = dir_entry.path().filename().string();
             // Remove the .json suffix.
             vendor_name.erase(vendor_name.size() - 5);
+#if MOSSO_SLICER_LOCAL_ONLY
+            if (vendor_name != "Mosso")
+                continue;
+#endif
             try {
                 if (first) {
                     // Reset this PresetBundle and load the first vendor config.
@@ -2699,7 +2754,7 @@ void PresetBundle::update_selections(AppConfig &config)
     if (!f_colors.empty()) {
         boost::algorithm::split(filament_colors, f_colors, boost::algorithm::is_any_of(","));
     }
-    filament_colors.resize(filament_presets.size(), "#26A69A");
+    filament_colors.resize(filament_presets.size(), "#BBD800");
     project_config.option<ConfigOptionStrings>("filament_colour")->values = filament_colors;
 
     std::vector<std::string> multi_filament_colors;
@@ -2849,7 +2904,7 @@ void PresetBundle::load_selections(AppConfig &config, const PresetPreferences& p
     if (!f_colors.empty()) {
         boost::algorithm::split(filament_colors, f_colors, boost::algorithm::is_any_of(","));
     }
-    filament_colors.resize(filament_presets.size(), "#26A69A");
+    filament_colors.resize(filament_presets.size(), "#BBD800");
     project_config.option<ConfigOptionStrings>("filament_colour")->values = filament_colors;
 
     std::vector<std::string> multi_filament_colors;
@@ -4319,6 +4374,9 @@ DynamicPrintConfig PresetBundle::full_fff_config(bool apply_extruder, std::optio
     out.option<ConfigOptionStrings>("extruder_ams_count", true)->values   = save_extruder_ams_count_to_string(this->extruder_ams_counts);
 
 	out.option<ConfigOptionEnumGeneric>("printer_technology", true)->value = ptFFF;
+#if MOSSO_SLICER_LOCAL_ONLY
+    enforce_mosso_single_tool_config(out);
+#endif
     return out;
 }
 
@@ -5347,6 +5405,31 @@ void PresetBundle::update_multi_material_filament_presets(size_t to_delete_filam
 {
     if (printers.get_edited_preset().printer_technology() != ptFFF)
         return;
+
+#if MOSSO_SLICER_LOCAL_ONLY
+    Preset &printer_preset = printers.get_edited_preset();
+    printer_preset.set_num_extruders(1);
+    if (auto *option = printer_preset.config.option<ConfigOptionBool>("single_extruder_multi_material", false))
+        option->value = false;
+    if (filament_presets.empty())
+        filament_presets.emplace_back(filaments.get_selected_preset_name());
+    else
+        filament_presets.resize(1);
+
+    if (auto *option = project_config.option<ConfigOptionStrings>("filament_colour", false))
+        option->values.assign(1, "#BBD800");
+    if (auto *option = project_config.option<ConfigOptionStrings>("filament_multi_colour", false))
+        option->values.assign(1, "#BBD800");
+    if (auto *option = project_config.option<ConfigOptionStrings>("filament_colour_type", false))
+        option->values.resize(1, "1");
+    if (auto *option = project_config.option<ConfigOptionInts>("filament_map", false))
+        option->values.resize(1, 1);
+    if (auto *option = project_config.option<ConfigOptionInts>("filament_nozzle_map", false))
+        option->values.resize(1, 0);
+    if (auto *option = project_config.option<ConfigOptionInts>("filament_volume_map", false))
+        option->values.resize(1, static_cast<int>(NozzleVolumeType::nvtStandard));
+    ams_multi_color_filment.resize(1);
+#endif
 
     // Orca: when the number of existing filament presets is less than the number of extruders, we will append new filament presets with the
     // same value as the last existing one.

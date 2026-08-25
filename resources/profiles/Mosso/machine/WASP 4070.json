@@ -1,0 +1,9 @@
+{
+  "type": "machine_model",
+  "name": "WASP 4070",
+  "model_id": "WASP_4070",
+  "nozzle_diameter": "0.4;0.8;1.0",
+  "machine_tech": "FFF",
+  "family": "WASP",
+  "default_materials": "Generic PLA;Generic PETG"
+}

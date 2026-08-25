@@ -182,7 +182,7 @@ private:
         dc.SetBackground(wxBrush(GetParent() ? GetParent()->GetBackgroundColour() : *wxWHITE));
         dc.Clear();
  
-        wxColour textCol = StateColor::darkModeColorFor(m_hovered ? "#26A69A" : "#363636");
+        wxColour textCol = StateColor::darkModeColorFor(m_hovered ? "#A6C000" : "#363636");
  
         dc.SetTextForeground(textCol);
         dc.SetFont(m_font);
@@ -369,7 +369,7 @@ wxBoxSizer *PreferencesDialog::create_item_language_combobox(wxString title, wxS
         wxLANGUAGE_THAI
     };
 
-    auto translations = wxTranslations::Get()->GetAvailableTranslations(SLIC3R_APP_KEY);
+    auto translations = wxTranslations::Get()->GetAvailableTranslations(SLIC3R_TRANSLATION_CATALOG);
     std::vector<const wxLanguageInfo *> language_infos;
     language_infos.emplace_back(wxLocale::GetLanguageInfo(wxLANGUAGE_ENGLISH));
     for (size_t i = 0; i < translations.GetCount(); ++i) {
@@ -1973,6 +1973,7 @@ void PreferencesDialog::create_items()
     //////////////////////////
     //// ONLINE TAB
     /////////////////////////////////////
+#if !MOSSO_SLICER_LOCAL_ONLY
     m_pref_tabs->AppendItem(_L("Online"));
     f_sizers.push_back(new wxFlexGridSizer(1, 1, v_gap, 0));
     g_sizer = f_sizers.back();
@@ -2042,6 +2043,7 @@ void PreferencesDialog::create_items()
 
     g_sizer->AddSpacer(FromDIP(10));
     sizer_page->Add(g_sizer, 0, wxEXPAND);
+#endif
 
     //////////////////////////
     //// ASSOCIATE TAB 

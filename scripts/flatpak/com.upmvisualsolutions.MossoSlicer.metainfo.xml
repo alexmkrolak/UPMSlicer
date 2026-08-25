@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>com.upmvisualsolutions.MossoSlicer</id>
+    <launchable type="desktop-id">com.upmvisualsolutions.MossoSlicer.desktop</launchable>
+    <name>Mosso Slicer</name>
+    <summary>Slice large-format models for WASP pellet printers</summary>
+    <developer id="com.upmvisualsolutions">
+        <name>UPM Visual Solutions</name>
+    </developer>
+    <url type="homepage">https://github.com/alexmkrolak/UPMSlicer</url>
+    <url type="bugtracker">https://github.com/alexmkrolak/UPMSlicer/issues</url>
+    <url type="vcs-browser">https://github.com/alexmkrolak/UPMSlicer</url>
+    <metadata_license>0BSD</metadata_license>
+    <project_license>AGPL-3.0-only</project_license>
+    <content_rating type="oars-1.1" />
+    <description>
+        <p>Mosso Slicer is an OrcaSlicer-based application configured for WASP filament and pellet printers, including the 4070, 60100 HDP, and 3MT HDP XL.</p>
+    </description>
+    <branding>
+        <color type="primary" scheme_preference="light">#00A896</color>
+        <color type="primary" scheme_preference="dark">#17343B</color>
+    </branding>
+    <provides>
+        <binary>mosso-slicer</binary>
+    </provides>
+</component>

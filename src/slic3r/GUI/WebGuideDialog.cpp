@@ -666,7 +666,11 @@ int GuideFrame::SaveProfile()
     //     m_MainPtr->app_config->set(std::string(m_SectionName.mb_str()), "privacyuse", "0");
 
     m_MainPtr->app_config->set("region", m_Region);
+#if MOSSO_SLICER_LOCAL_ONLY
+    m_MainPtr->app_config->set_bool("stealth_mode", true);
+#else
     m_MainPtr->app_config->set_bool("stealth_mode", StealthMode);
+#endif
 
     //finish
     m_MainPtr->app_config->set(std::string(m_SectionName.mb_str()), "finish", "1");

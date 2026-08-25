@@ -318,7 +318,7 @@ void Tab::create_preset_tab()
     //search input
     m_search_item = new StaticBox(m_top_panel);
     StateColor box_colour(std::pair<wxColour, int>(*wxWHITE, StateColor::Normal));
-    StateColor box_border_colour(std::pair<wxColour, int>(wxColour("#009688"), StateColor::Normal)); // ORCA match border color with other input/combo boxes
+    StateColor box_border_colour(std::pair<wxColour, int>(wxColour("#BBD800"), StateColor::Normal)); // ORCA match border color with other input/combo boxes
 
     m_search_item->SetBackgroundColor(box_colour);
     m_search_item->SetBorderColor(box_border_colour);
@@ -444,6 +444,10 @@ void Tab::create_preset_tab()
         }
         m_top_sizer->AddSpacer(FromDIP(SidebarProps::ElementSpacing()));
         m_top_sizer->Add( m_mode_view, 0, wxALIGN_CENTER_VERTICAL);
+#if MOSSO_SLICER_LOCAL_ONLY
+        m_mode_icon->Hide();
+        m_mode_view->Hide();
+#endif
     }
 
     m_top_sizer->AddSpacer(FromDIP(SidebarProps::ContentMargin()));
@@ -2968,6 +2972,7 @@ void TabPrint::build()
         optgroup->append_single_option_line("tree_support_auto_brim", "support_settings_tree");
         optgroup->append_single_option_line("tree_support_brim_width", "support_settings_tree");
 
+#if !MOSSO_SLICER_LOCAL_ONLY
     page = add_options_page(L("Multimaterial"), "custom-gcode_multi_material"); // ORCA: icon only visible on placeholders
         optgroup = page->new_optgroup(L("Prime tower"), L"param_tower");
         optgroup->append_single_option_line("enable_prime_tower", "multimaterial_settings_prime_tower");
@@ -3022,6 +3027,7 @@ void TabPrint::build()
         optgroup->append_single_option_line("interlocking_beam_layer_count", "multimaterial_settings_advanced#interlocking-beam-layers");
         optgroup->append_single_option_line("interlocking_depth", "multimaterial_settings_advanced#interlocking-depth");
         optgroup->append_single_option_line("interlocking_boundary_avoidance", "multimaterial_settings_advanced#interlocking-boundary-avoidance");
+#endif
 
     page = add_options_page(L("Others"), "custom-gcode_other"); // ORCA: icon only visible on placeholders
         optgroup = page->new_optgroup(L("Skirt"), L"param_skirt");
@@ -4034,11 +4040,13 @@ void TabFilament::add_filament_overrides_page()
                                      })
         append_retraction_option(retraction_optgroup, opt_key, extruder_idx);
 
+#if !MOSSO_SLICER_LOCAL_ONLY
     ConfigOptionsGroupShp toolchange_optgroup = page->new_optgroup(L("Retraction when switching material"), L"param_retraction_material_change");
     for (const std::string opt_key : {  "filament_retract_length_toolchange",
                                         "filament_retract_restart_extra_toolchange"
                                      })
         append_retraction_option(toolchange_optgroup, opt_key, extruder_idx);
+#endif
 
     ConfigOptionsGroupShp ironing_optgroup = page->new_optgroup(L("Ironing"), L"param_ironing");
     auto append_ironing_option = [this, ironing_optgroup](const std::string& opt_key, int opt_index)
@@ -4153,8 +4161,6 @@ void TabFilament::update_filament_overrides_page(const DynamicPrintConfig* print
                                             "filament_retraction_speed",
                                             "filament_deretraction_speed",
                                             "filament_retract_restart_extra",
-                                            "filament_retract_length_toolchange",
-                                            "filament_retract_restart_extra_toolchange",
                                             "filament_retraction_minimum_travel",
                                             "filament_retract_when_changing_layer",
                                             "filament_wipe",
@@ -4162,13 +4168,18 @@ void TabFilament::update_filament_overrides_page(const DynamicPrintConfig* print
                                             "filament_wipe_distance",
                                             "filament_retract_before_wipe",
                                             // Orca
-                                            "filament_retract_after_wipe",
-                                            // BBS
-                                            "filament_long_retractions_when_cut",
-                                            "filament_retraction_distances_when_cut"
+                                            "filament_retract_after_wipe"
                                             //SoftFever
                                             // "filament_seam_gap"
                                         };
+#if !MOSSO_SLICER_LOCAL_ONLY
+    opt_keys.insert(opt_keys.end(), {
+        "filament_retract_length_toolchange",
+        "filament_retract_restart_extra_toolchange",
+        "filament_long_retractions_when_cut",
+        "filament_retraction_distances_when_cut"
+    });
+#endif
 
     const int selection = m_variant_combo ? m_variant_combo->GetSelection() : 0;
     auto opt = dynamic_cast<ConfigOptionVectorBase *>(m_config->option("filament_retraction_length"));
@@ -4540,6 +4551,7 @@ void TabFilament::build()
         optgroup = page->new_optgroup(L("Plugin Configuration"), L"param_gcode");
         optgroup->append_single_option_line("filament_plugin_config_overrides");
 
+#if !MOSSO_SLICER_LOCAL_ONLY
     page = add_options_page(L("Multimaterial"), "custom-gcode_multi_material"); // ORCA: icon only visible on placeholders
         optgroup = page->new_optgroup(L("Wipe tower parameters"), "param_tower");
         optgroup->append_single_option_line("filament_minimal_purge_on_wipe_tower", "material_multimaterial#multimaterial-wipe-tower-parameters");
@@ -4589,6 +4601,7 @@ void TabFilament::build()
         optgroup->append_single_option_line("filament_multitool_ramming", "material_multimaterial#tool-change-parameters-with-multi-extruder");
         optgroup->append_single_option_line("filament_multitool_ramming_volume", "material_multimaterial#multi-tool-ramming-volume");
         optgroup->append_single_option_line("filament_multitool_ramming_flow", "material_multimaterial#multi-tool-ramming-flow");
+#endif
 
     page = add_options_page(L("Dependencies"), "advanced");
         optgroup = page->new_optgroup(L("Compatible printers"), "param_dependencies_printers");
@@ -5208,6 +5221,7 @@ void TabPrinter::build_fff()
         option.opt.height     = gcode_field_height; // 150;
         optgroup->append_single_option_line(option, "printer_machine_gcode#clumping-detection-g-code");
 
+#if !MOSSO_SLICER_LOCAL_ONLY
         optgroup = page->new_optgroup(L("Change filament G-code"), L"param_gcode", 0);
         optgroup->m_on_change = [this, &optgroup_title = optgroup->title](const t_config_option_key& opt_key, const boost::any& value) {
             validate_custom_gcode_cb(this, optgroup_title, opt_key, value);
@@ -5218,6 +5232,7 @@ void TabPrinter::build_fff()
         option.opt.is_code = true;
         option.opt.height = gcode_field_height;//150;
         optgroup->append_single_option_line(option, "printer_machine_gcode#change-filament-g-code");
+#endif
 
         optgroup = page->new_optgroup(L("Change extrusion role G-code"), L"param_gcode", 0);
         optgroup->m_on_change = [this, &optgroup_title = optgroup->title](const t_config_option_key &opt_key, const boost::any &value) {
@@ -5496,8 +5511,8 @@ void TabPrinter::build_unregular_pages(bool from_initial_build/* = false*/)
 
 if (is_marlin_flavor)
     n_before_extruders++;
+#if !MOSSO_SLICER_LOCAL_ONLY
     size_t		n_after_single_extruder_MM = 2; //	Count of pages after single_extruder_multi_material page
-
     if (from_initial_build) {
         // create a page, but pretend it's an extruder page, so we can add it to m_pages ourselves
         auto page     = add_options_page(L("Multimaterial"), "custom-gcode_multi_material", true); // ORCA: icon only visible on placeholders
@@ -5609,6 +5624,7 @@ if (is_marlin_flavor)
         optgroup->append_single_option_line("machine_tool_change_time", "printer_multimaterial_advanced#tool-change-time");
         m_pages.insert(m_pages.end() - n_after_single_extruder_MM, page);
     }
+#endif
 
     // Orca: build missed extruder pages
     for (auto extruder_idx = m_extruders_count_old; extruder_idx < m_extruders_count; ++extruder_idx) {
@@ -5696,12 +5712,14 @@ if (is_marlin_flavor)
             optgroup->append_single_option_line("retract_lift_above", "printer_extruder_z_hop#only-lift-z-above", extruder_idx);
             optgroup->append_single_option_line("retract_lift_below", "printer_extruder_z_hop#only-lift-z-below", extruder_idx);
 
+#if !MOSSO_SLICER_LOCAL_ONLY
             optgroup = page->new_optgroup(L("Retraction when switching material"), L"param_retraction_material_change");
             optgroup->append_single_option_line("retract_length_toolchange", "printer_extruder_retraction#retraction-when-switching-materials", extruder_idx);
             optgroup->append_single_option_line("retract_restart_extra_toolchange", "printer_extruder_retraction#retraction-when-switching-materials", extruder_idx);
             // do not display this params now
             optgroup->append_single_option_line("long_retractions_when_cut", "printer_extruder_retraction#long-retraction-when-cut-beta", extruder_idx);
             optgroup->append_single_option_line("retraction_distances_when_cut", "printer_extruder_retraction#long-retraction-when-cut-beta", extruder_idx);
+#endif
 #if 0
             //optgroup = page->new_optgroup(L("Preview"), -1, true);
 
@@ -6210,13 +6228,14 @@ void TabPrinter::toggle_options()
         // BBS
         toggle_option("wipe_distance", wipe, i);
 
+#if !MOSSO_SLICER_LOCAL_ONLY
         toggle_option("retract_length_toolchange", have_multiple_extruders, i);
-
         bool toolchange_retraction = m_config->opt_float("retract_length_toolchange", variant_index) > 0;
         toggle_option("retract_restart_extra_toolchange", have_multiple_extruders && toolchange_retraction, i);
 
         toggle_option("long_retractions_when_cut", !use_firmware_retraction && m_config->opt_int("enable_long_retraction_when_cut"), i);
         toggle_line("retraction_distances_when_cut", m_config->opt_bool("long_retractions_when_cut", variant_index), i);
+#endif
 
         toggle_option("travel_slope", m_config->opt_enum("z_hop_types", i) != ZHopType::zhtNormal, i);
     }
@@ -6566,19 +6585,25 @@ void Tab::rebuild_page_tree()
     // suppress activate page before page_tree rebuilding
     m_disable_tree_sel_changed_event = true;
 
-    bool hide_process_multimaterial = false;
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Mosso printers are intentionally single-tool. Keep the underlying options
+    // loadable for project compatibility, but do not expose any multimaterial page.
+    const bool hide_multimaterial = true;
+#else
+    bool hide_multimaterial = false;
     if (m_type == Preset::TYPE_PRINT && m_preset_bundle != nullptr) {
         const auto &printer_config = m_preset_bundle->printers.get_selected_preset().config;
         if (const auto *pellet_option = printer_config.option<ConfigOptionBool>("pellet_modded_printer"))
-            hide_process_multimaterial = pellet_option->value;
+            hide_multimaterial = pellet_option->value;
     }
+#endif
 
     int curr_item = 0;
     for (auto p : m_pages)
     {
         if (!p->get_show())
             continue;
-        if (hide_process_multimaterial && p->title() == L("Multimaterial"))
+        if (hide_multimaterial && p->title() == L("Multimaterial"))
             continue;
         if (m_tabctrl->GetCount() <= curr_item) {
             m_tabctrl->AppendItem(translate_category(p->title(), m_type), p->iconID());

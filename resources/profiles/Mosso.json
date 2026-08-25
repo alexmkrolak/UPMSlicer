@@ -1,0 +1,42 @@
+{
+  "name": "Mosso",
+  "version": "01.00.00.09",
+  "force_update": "1",
+  "description": "Mosso Slicer configurations for WASP filament and pellet printers",
+  "machine_model_list": [
+    { "name": "WASP 3MT HDP XL", "sub_path": "machine/WASP 3MT HDP XL.json" },
+    { "name": "WASP 4070", "sub_path": "machine/WASP 4070.json" },
+    { "name": "WASP 60100 HDP", "sub_path": "machine/WASP 60100 HDP.json" }
+  ],
+  "machine_list": [
+    { "name": "fdm_machine_common", "sub_path": "machine/fdm_machine_common.json" },
+    { "name": "WASP_3MT_HDP_XL_common", "sub_path": "machine/WASP_3MT_HDP_XL_common.json" },
+    { "name": "WASP 3MT HDP XL 2.0 nozzle", "sub_path": "machine/WASP 3MT HDP XL 2.0 nozzle.json" },
+    { "name": "WASP 3MT HDP XL 3.0 nozzle", "sub_path": "machine/WASP 3MT HDP XL 3.0 nozzle.json" },
+    { "name": "WASP 3MT HDP XL 5.0 nozzle", "sub_path": "machine/WASP 3MT HDP XL 5.0 nozzle.json" },
+    { "name": "WASP_4070_common", "sub_path": "machine/WASP_4070_common.json" },
+    { "name": "WASP 4070 0.4 nozzle", "sub_path": "machine/WASP 4070 0.4 nozzle.json" },
+    { "name": "WASP 4070 0.8 nozzle", "sub_path": "machine/WASP 4070 0.8 nozzle.json" },
+    { "name": "WASP 4070 1.0 nozzle", "sub_path": "machine/WASP 4070 1.0 nozzle.json" },
+    { "name": "WASP_60100_HDP_common", "sub_path": "machine/WASP_60100_HDP_common.json" },
+    { "name": "WASP 60100 HDP 1.0 nozzle", "sub_path": "machine/WASP 60100 HDP 1.0 nozzle.json" },
+    { "name": "WASP 60100 HDP 2.0 nozzle", "sub_path": "machine/WASP 60100 HDP 2.0 nozzle.json" }
+  ],
+  "process_list": [
+    { "name": "fdm_process_common", "sub_path": "process/fdm_process_common.json" },
+    { "name": "0.20mm Standard", "sub_path": "process/0.20mm Standard.json" },
+    { "name": "0.40mm Standard", "sub_path": "process/0.40mm Standard.json" },
+    { "name": "0.50mm Standard", "sub_path": "process/0.50mm Standard.json" },
+    { "name": "0.80mm Standard", "sub_path": "process/0.80mm Standard.json" },
+    { "name": "1.00mm Standard", "sub_path": "process/1.00mm Standard.json" },
+    { "name": "1.20mm Standard", "sub_path": "process/1.20mm Standard.json" },
+    { "name": "1.30mm Standard - Copy", "sub_path": "process/1.30mm Standard - Copy.json" },
+    { "name": "2.00mm Standard", "sub_path": "process/2.00mm Standard.json" }
+  ],
+  "filament_list": [
+    { "name": "fdm_filament_common", "sub_path": "filament/fdm_filament_common.json" },
+    { "name": "Generic PLA", "sub_path": "filament/Generic PLA.json" },
+    { "name": "Generic PETG", "sub_path": "filament/Generic PETG.json" },
+    { "name": "Polymaker PETG 20GF - Copy", "sub_path": "filament/Polymaker PETG 20GF - Copy.json" }
+  ]
+}

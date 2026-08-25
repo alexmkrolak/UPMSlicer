@@ -34,7 +34,7 @@
 #define STATIC_TEXT_COLOUR wxColour("#363636")
 #define PRINTER_LIST_COLOUR wxColour("#EEEEEE")
 #define FILAMENT_OPTION_COLOUR wxColour("#D9D9D9")
-#define SELECT_ALL_OPTION_COLOUR wxColour("#009688")
+#define SELECT_ALL_OPTION_COLOUR wxColour("#BBD800")
 #define DEFAULT_PROMPT_TEXT_COLOUR wxColour("#ACACAC")
 
 namespace Slic3r {
@@ -77,7 +77,7 @@ static const std::vector<std::string> printer_vendors =
      "Orca Arena Printer", "Peopoly",            "Positron 3D",        "Prusa",              "Qidi",
      "Raise3D",            "RatRig",             "re3D",               "RolohaunDesign",     "SecKit",             
      "Snapmaker",          "Sovol",              "Thinker X400",       "Tronxy",             "TwoTrees",           
-     "UltiMaker",          "UPM",                "Vivedino",           "Volumic",            "Voron",              "Voxelab",
+     "UltiMaker",          "Mosso",              "Vivedino",           "Volumic",            "Voron",              "Voxelab",
      "Vzbot",              "Wanhao",             "Z-Bolt"};
 
 static const std::unordered_map<std::string, std::vector<std::string>> printer_model_map =
@@ -151,7 +151,7 @@ static const std::unordered_map<std::string, std::vector<std::string>> printer_m
      {"Tronxy",            {"Tronxy X5SA 400 Marlin Firmware"}},
      {"TwoTrees",          {"TwoTrees SP-5 Klipper", "TwoTrees SK1"}},
      {"UltiMaker",         {"UltiMaker 2"}},
-     {"UPM",               {"WASP 3MT HDP XL"}},
+     {"Mosso",             {"WASP 3MT HDP XL", "WASP 4070", "WASP 60100 HDP"}},
      {"Vivedino",          {"Troodon 2.0 - RRF",     "Troodon 2.0 - Klipper"}},
      {"Volumic",           {"EXO42 Performance", "EXO65 Performance", "SH65 Performance",  "EXO42",             "EXO65",           
                             "SH65",              "VS30SC2",           "VS30SC",            "VS30ULTRA",         "VS30MK3",         

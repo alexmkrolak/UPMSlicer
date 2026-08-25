@@ -40,7 +40,7 @@ using namespace nlohmann;
 
 namespace Slic3r {
 
-static const std::string VERSION_CHECK_URL = "https://check-version.orcaslicer.com/latest";
+static const std::string VERSION_CHECK_URL = "https://api.github.com/repos/alexmkrolak/UPMSlicer/releases";
 static const std::string PROFILE_UPDATE_URL = "https://check-version.orcaslicer.com/profile";
 static const std::string MODELS_STR = "models";
 
@@ -86,16 +86,25 @@ std::string AppConfig::get_hms_host()
 
 bool AppConfig::get_stealth_mode()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Local-only is a Mosso Slicer product policy, not a user preference.
+    return true;
+#else
     // always return true when user did not finish setup wizard yet
     if (!get_bool("firstguide","finish")) {
         return true;
     }
     return get_bool("stealth_mode");
+#endif
 }
 
 bool AppConfig::get_hide_login_side_panel()
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return true;
+#else
     return get_bool("hide_login_side_panel");
+#endif
 }
 
 void AppConfig::reset()
@@ -396,6 +405,13 @@ void AppConfig::set_defaults()
     }
 
     // Orca
+#if MOSSO_SLICER_LOCAL_ONLY
+    set_bool("stealth_mode", true);
+    set_bool("hide_login_side_panel", true);
+    set_bool("preset_bundle_auto_update", false);
+    set(SETTING_CLOUD_PROVIDERS, "");
+    set("preset_folder", "");
+#else
     if (get("stealth_mode").empty()) {
         set_bool("stealth_mode", false);
     }
@@ -409,6 +425,7 @@ void AppConfig::set_defaults()
     if (get("preset_bundle_auto_update").empty()) {
         set_bool("preset_bundle_auto_update", false);
     }
+#endif
 
 #ifdef __linux__
     if (get(SETTING_USE_ENCRYPTED_TOKEN_FILE).empty())
@@ -450,6 +467,9 @@ void AppConfig::set_defaults()
     if (get("show_shared_profiles_notification").empty()) {
         set_bool("show_shared_profiles_notification", true);
     }
+#if MOSSO_SLICER_LOCAL_ONLY
+    set_bool("show_shared_profiles_notification", false);
+#endif
 
     if (get("auto_calculate_flush").empty()){
         set("auto_calculate_flush","all");
@@ -498,6 +518,9 @@ void AppConfig::set_defaults()
     if (get("sync_user_preset").empty()) {
         set_bool("sync_user_preset", false);
     }
+#if MOSSO_SLICER_LOCAL_ONLY
+    set_bool("sync_user_preset", false);
+#endif
 
     if (get("keyboard_supported").empty()) {
         set("keyboard_supported", std::string("none/alt/control/shift"));
@@ -554,6 +577,9 @@ void AppConfig::set_defaults()
     if (get("sync_system_preset").empty()) {
         set_bool("sync_system_preset", true);
     }
+#if MOSSO_SLICER_LOCAL_ONLY
+    set_bool("sync_system_preset", false);
+#endif
 
     if (get("backup_switch").empty() || get("version") < "01.06.00.00") {
         set_bool("backup_switch", true);
@@ -623,6 +649,9 @@ void AppConfig::set_defaults()
     if(get("installed_networking").empty()) {
         set_bool("installed_networking", false);
     }
+#if MOSSO_SLICER_LOCAL_ONLY
+    set_bool("installed_networking", false);
+#endif
 
 #ifdef __linux__
     if (get("window_buttons_on_left").empty())
@@ -634,6 +663,50 @@ void AppConfig::set_defaults()
         // false = legacy behavior using print hosts
         set_bool("use_printer_agents", false);
     }
+
+#if MOSSO_SLICER_LOCAL_ONLY
+    // Mosso Slicer ships a deliberately small, ready-to-use catalogue. Keep
+    // every supported machine variant and material enabled and make Expert
+    // settings the only visibility level, including when upgrading an older
+    // Mosso configuration.
+    set("user_mode", "expert");
+    set("firstguide", "finish", "true");
+
+    const std::vector<std::string> supported_machines {
+        "WASP 3MT HDP XL 2.0 nozzle", "WASP 3MT HDP XL 3.0 nozzle", "WASP 3MT HDP XL 5.0 nozzle",
+        "WASP 4070 0.4 nozzle", "WASP 4070 0.8 nozzle", "WASP 4070 1.0 nozzle",
+        "WASP 60100 HDP 1.0 nozzle", "WASP 60100 HDP 2.0 nozzle"
+    };
+    const std::vector<std::string> supported_filaments {"Polymaker PETG 20GF - Copy", "Generic PLA", "Generic PETG"};
+    const std::vector<std::string> supported_processes {
+        "0.20mm Standard", "0.40mm Standard", "0.50mm Standard", "0.80mm Standard", "1.00mm Standard",
+        "1.20mm Standard", "1.30mm Standard - Copy", "2.00mm Standard"
+    };
+
+    const auto set_supported_default = [this](const char *key, const std::vector<std::string> &supported, const char *fallback) {
+        const std::string selected = get("presets", key);
+        if (std::find(supported.begin(), supported.end(), selected) == supported.end())
+            set("presets", key, fallback);
+    };
+    set_supported_default("machine", supported_machines, "WASP 3MT HDP XL 3.0 nozzle");
+    set_supported_default("filament", supported_filaments, "Polymaker PETG 20GF - Copy");
+    set_supported_default("print", supported_processes, "1.30mm Standard - Copy");
+
+    m_vendors.clear();
+    set_variant("Mosso", "WASP 3MT HDP XL", "2.0", true);
+    set_variant("Mosso", "WASP 3MT HDP XL", "3.0", true);
+    set_variant("Mosso", "WASP 3MT HDP XL", "5.0", true);
+    set_variant("Mosso", "WASP 4070", "0.4", true);
+    set_variant("Mosso", "WASP 4070", "0.8", true);
+    set_variant("Mosso", "WASP 4070", "1.0", true);
+    set_variant("Mosso", "WASP 60100 HDP", "1.0", true);
+    set_variant("Mosso", "WASP 60100 HDP", "2.0", true);
+
+    clear_section(SECTION_FILAMENTS);
+    set(SECTION_FILAMENTS, "Polymaker PETG 20GF - Copy", "true");
+    set(SECTION_FILAMENTS, "Generic PLA", "true");
+    set(SECTION_FILAMENTS, "Generic PETG", "true");
+#endif
 
     // Remove legacy window positions/sizes
     erase("app", "main_frame_maximized");
@@ -919,6 +992,9 @@ std::string AppConfig::load()
         }
 
         // Default for new installs
+#if MOSSO_SLICER_LOCAL_ONLY
+        set(SETTING_CLOUD_PROVIDERS, "");
+#else
         if (get(SETTING_CLOUD_PROVIDERS).empty()) {
             // Migrate add bbl cloud if installed_networking is true
             bool enable_bbl_cloud = get_bool("installed_networking");
@@ -929,6 +1005,7 @@ std::string AppConfig::load()
                 set(SETTING_CLOUD_PROVIDERS, "orca");
             }
         }
+#endif
     }
 
     // Override missing or keys with their defaults.
@@ -1723,6 +1800,9 @@ void AppConfig::clear_remind_network_update_later()
 
 std::vector<std::string> AppConfig::get_cloud_providers() const
 {
+#if MOSSO_SLICER_LOCAL_ONLY
+    return {};
+#else
     std::vector<std::string> result;
     std::string providers = get(SETTING_CLOUD_PROVIDERS);
     if (providers.empty()) {
@@ -1741,6 +1821,7 @@ std::vector<std::string> AppConfig::get_cloud_providers() const
         result.insert(result.begin(), "orca");
     }
     return result;
+#endif
 }
 
 void AppConfig::set_cloud_providers(const std::vector<std::string>& providers)

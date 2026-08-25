@@ -20,11 +20,10 @@ function HandleStudio(pVal)
 
 function InstallNetworkPlugin()
 {
-	if(m_ProfileItem["network_plugin_install"]!='1' || (m_ProfileItem["network_plugin_install"]=='1' && m_ProfileItem["network_plugin_compability"]=='0') )
-	{
-		$("#AcceptBtn").hide();
-		$("#GotoNetPluginBtn").show();
-	}
+	// Mosso Slicer uses local profiles and OctoPrint; no cloud/network plug-in
+	// installation step is part of the setup wizard.
+	$("#GotoNetPluginBtn").hide();
+	$("#AcceptBtn").show();
 }
 
 function ReturnPreviewPage()

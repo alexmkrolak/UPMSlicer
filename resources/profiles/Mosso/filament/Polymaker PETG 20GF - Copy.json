@@ -22,7 +22,7 @@
     "6"
   ],
   "filament_flow_ratio": [
-    "1"
+    "0.96"
   ],
   "pellet_flow_coefficient": [
     "1"
@@ -124,11 +124,13 @@
     "70"
   ],
   "filament_notes": [
-    "Imported from the Ginger Slicer user preset 'Polymaker PETG 20GF - Copy'. Ginger-only values retained for reference: extruder_rotation_volume=300 and cooling_time_per_cross_section=10.9. The two WASP heater zones are mapped to nozzle T0=240 C and barrel T1=240 C; Firecap=70 C. Pressure advance 0.3 is retained but disabled until the WASP firmware is confirmed."
+    "Imported from the Ginger Slicer user preset 'Polymaker PETG 20GF - Copy'. Flow ratio is 0.96, matching the controller flow used for the clean successful 3 mm print. That print ran for 4:48:33 and weighed 3.8 kg; the original G-code estimate was 4:31 and 3.49 kg. Density remains the source preset's 1.39 g/cm3 because the mass difference should not be hidden behind an implausible density correction. Ginger-only values retained for reference: extruder_rotation_volume=300 and cooling_time_per_cross_section=10.9. The 3MT heater zones are mapped to nozzle T0=240 C and barrel T1=240 C; Firecap=70 C. Pressure advance 0.3 is retained but disabled until firmware support is confirmed."
   ],
   "compatible_printers": [
     "WASP 3MT HDP XL 2.0 nozzle",
     "WASP 3MT HDP XL 3.0 nozzle",
-    "WASP 3MT HDP XL 5.0 nozzle"
+    "WASP 3MT HDP XL 5.0 nozzle",
+    "WASP 60100 HDP 1.0 nozzle",
+    "WASP 60100 HDP 2.0 nozzle"
   ]
 }

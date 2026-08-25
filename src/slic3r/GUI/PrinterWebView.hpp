@@ -39,7 +39,7 @@ public:
     PrinterWebView(wxWindow *parent);
     virtual ~PrinterWebView();
 
-    void load_url(wxString& url, wxString apikey = "");
+    void load_url(wxString& url, wxString apikey = "", wxString username = "", wxString password = "");
     void UpdateState();
     void OnClose(wxCloseEvent& evt);
     void OnError(wxWebViewEvent& evt);
@@ -54,12 +54,16 @@ public:
 private:
     friend class PrinterWebViewHandler;
 
-    void SendAPIKey();
+    bool SendAPIKey();
+    bool AutoLogin();
 
     wxWebView* m_browser;
     long m_zoomFactor;
     wxString m_apikey;
     bool m_apikey_sent;
+    wxString m_username;
+    wxString m_password;
+    bool m_auto_login_attempted;
     wxString m_url_deferred;
     std::unique_ptr<PrinterWebViewHandler> m_handler;
 

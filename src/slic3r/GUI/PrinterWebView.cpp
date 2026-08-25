@@ -9,6 +9,7 @@
 #include "libslic3r_version.h"
 
 #include <boost/filesystem/path.hpp>
+#include <nlohmann/json.hpp>
 #include <wx/sizer.h>
 #include <wx/string.h>
 #include <wx/toolbar.h>
@@ -104,6 +105,9 @@ PrinterWebView::PrinterWebView(wxWindow *parent)
     , m_zoomFactor(100)
     , m_apikey()
     , m_apikey_sent(false)
+    , m_username()
+    , m_password()
+    , m_auto_login_attempted(false)
     , m_url_deferred()
     , m_handler(std::make_unique<PrinterWebViewHandler>(*this))
  {
@@ -169,7 +173,7 @@ PrinterWebView::~PrinterWebView()
     BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << " End";
 }
 
-void PrinterWebView::load_url(wxString& url, wxString apikey)
+void PrinterWebView::load_url(wxString& url, wxString apikey, wxString username, wxString password)
 {
 //    this->Show();
 //    this->Raise();
@@ -177,6 +181,9 @@ void PrinterWebView::load_url(wxString& url, wxString apikey)
         return;
     m_apikey = apikey;
     m_apikey_sent = false;
+    m_username = username;
+    m_password = password;
+    m_auto_login_attempted = false;
     m_handler = create_printer_webview_handler(*this);
 
     if (this->IsShown()) {
@@ -224,10 +231,10 @@ void PrinterWebView::OnClose(wxCloseEvent& evt)
     this->Hide();
 }
 
-void PrinterWebView::SendAPIKey()
+bool PrinterWebView::SendAPIKey()
 {
     if (m_apikey_sent || m_apikey.IsEmpty())
-        return;
+        return false;
     m_apikey_sent   = true;
     wxString script = wxString::Format(R"(
     // Check if window.fetch exists before overriding
@@ -258,6 +265,30 @@ void PrinterWebView::SendAPIKey()
 
     m_browser->AddUserScript(script);
     m_browser->Reload();
+    return true;
+}
+
+bool PrinterWebView::AutoLogin()
+{
+    if (m_auto_login_attempted || m_username.IsEmpty() || m_password.IsEmpty())
+        return false;
+
+    m_auto_login_attempted = true;
+    const std::string username = nlohmann::json(into_u8(m_username)).dump();
+    const std::string password = nlohmann::json(into_u8(m_password)).dump();
+    const std::string script =
+        "(function() {"
+        "fetch('/api/login', {"
+        "method: 'POST',"
+        "credentials: 'include',"
+        "headers: {'Content-Type': 'application/json'},"
+        "body: JSON.stringify({user: " + username + ", pass: " + password + ", remember: true})"
+        "}).then(function(response) {"
+        "if (response.ok) window.location.reload();"
+        "else console.warn('Mosso Slicer: OctoPrint automatic login failed with HTTP ' + response.status);"
+        "}).catch(function() { console.warn('Mosso Slicer: OctoPrint automatic login request failed'); });"
+        "})();";
+    return m_browser->RunScript(from_u8(script));
 }
 
 void PrinterWebView::OnError(wxWebViewEvent &evt)
@@ -298,7 +329,8 @@ void PrinterWebView::OnLoaded(wxWebViewEvent& evt)
         return;
     //ORCA: url loaded successfully, safe to clear
     m_url_deferred.clear();
-    SendAPIKey();
+    if (SendAPIKey() || AutoLogin())
+        return;
   
     if (m_handler != nullptr) {
         m_handler->on_loaded(evt);

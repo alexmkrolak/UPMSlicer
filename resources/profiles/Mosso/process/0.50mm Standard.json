@@ -1,0 +1,10 @@
+{
+  "type": "process", "name": "0.50mm Standard", "inherits": "fdm_process_common", "from": "system", "instantiation": "true",
+  "print_settings_id": "0.50mm Standard", "setting_id": "MOSSO_PROCESS_050",
+  "layer_height": "0.5", "initial_layer_print_height": "0.5",
+  "line_width": "1.1", "initial_layer_line_width": "1.2", "outer_wall_line_width": "1.05", "inner_wall_line_width": "1.1", "sparse_infill_line_width": "1.1",
+  "wall_loops": "2", "top_shell_layers": "4", "bottom_shell_layers": "3", "sparse_infill_density": "15%",
+  "initial_layer_speed": "30", "outer_wall_speed": "50", "inner_wall_speed": "60", "sparse_infill_speed": "60", "internal_solid_infill_speed": "55", "top_surface_speed": "40", "travel_speed": "200",
+  "default_acceleration": "1500", "initial_layer_acceleration": "800", "outer_wall_acceleration": "1200", "travel_acceleration": "1500",
+  "compatible_printers": ["WASP 4070 1.0 nozzle", "WASP 60100 HDP 1.0 nozzle"]
+}

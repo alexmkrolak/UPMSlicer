@@ -1,4 +1,4 @@
-@REM OrcaSlicer build script for Windows
+@REM Mosso Slicer build script for Windows
 @echo off
 set WP=%CD%
 
@@ -64,14 +64,14 @@ cmake --build . --config %build_type% --target deps -- -m
 if "%1"=="deps" exit /b 0
 
 :slicer
-echo "building Orca Slicer..."
+echo "building Mosso Slicer..."
 cd %WP%
 mkdir %build_dir%
 cd %build_dir%
 
 echo on
 set CMAKE_POLICY_VERSION_MINIMUM=3.5
-cmake .. -G "Visual Studio 18 2026" -A %arch% -DORCA_TOOLS=ON %SIG_FLAG% -DCMAKE_BUILD_TYPE=%build_type%
+cmake .. -G "Visual Studio 18 2026" -A %arch% -DORCA_TOOLS=ON %SIG_FLAG% -DCMAKE_BUILD_TYPE=%build_type% -DCMAKE_INSTALL_PREFIX="%WP%/%build_dir%/MossoSlicer"
 cmake --build . --config %build_type% --target ALL_BUILD -- -m
 @echo off
 cd ..

@@ -1,0 +1,3 @@
+{
+  "type": "filament", "name": "fdm_filament_common", "from": "system", "filament_id": "PMOSSO0001", "instantiation": "false", "filament_vendor": ["Generic"], "filament_density": ["1.23"], "filament_cost": ["4"], "fan_min_speed": ["0"], "fan_max_speed": ["0"], "enable_overhang_bridge_fan": ["0"], "close_fan_the_first_x_layers": ["0"], "slow_down_layer_time": ["0"], "filament_max_volumetric_speed": ["200"]
+}

@@ -1,0 +1,9 @@
+{
+  "type": "machine_model",
+  "name": "WASP 60100 HDP",
+  "model_id": "WASP_60100_HDP",
+  "nozzle_diameter": "1.0;2.0",
+  "machine_tech": "FGF",
+  "family": "WASP",
+  "default_materials": "Polymaker PETG 20GF - Copy;Generic PLA;Generic PETG"
+}

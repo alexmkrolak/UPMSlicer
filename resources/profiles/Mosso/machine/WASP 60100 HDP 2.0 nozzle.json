@@ -1,0 +1,5 @@
+{
+  "type": "machine", "name": "WASP 60100 HDP 2.0 nozzle", "inherits": "WASP_60100_HDP_common", "from": "system", "instantiation": "true",
+  "printer_settings_id": "WASP 60100 HDP 2.0 nozzle", "printer_model": "WASP 60100 HDP", "printer_variant": "2.0",
+  "nozzle_diameter": ["2.0"], "max_layer_height": ["1.5"], "setting_id": "MOSSO6010020"
+}

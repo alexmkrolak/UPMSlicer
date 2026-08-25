@@ -97,15 +97,24 @@ public:
 
     LoadPrinterViewEvent(const LoadPrinterViewEvent& event)
         : wxCommandEvent(event)
-        { m_APIkey = event.m_APIkey; }
+        , m_APIkey(event.m_APIkey)
+        , m_username(event.m_username)
+        , m_password(event.m_password)
+        { }
 
     const wxString& GetAPIkey() const { return m_APIkey; }
     void SetAPIkey(const wxString& apikey) { m_APIkey = apikey; }
+    const wxString& GetUsername() const { return m_username; }
+    void SetUsername(const wxString& username) { m_username = username; }
+    const wxString& GetPassword() const { return m_password; }
+    void SetPassword(const wxString& password) { m_password = password; }
 
     virtual wxEvent *Clone() const wxOVERRIDE { return new LoadPrinterViewEvent(*this); }
 
 private:
     wxString m_APIkey;
+    wxString m_username;
+    wxString m_password;
 
 };
 }

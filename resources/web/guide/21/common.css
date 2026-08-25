@@ -136,7 +136,7 @@
 	background: var(--main-color);
 	border: 1px solid var(--main-color);
 	z-index: 9999;
-	color: #FFF;
+	color: #262E30;
 	text-align: center;
 }
 
@@ -200,7 +200,7 @@ img.ModelThumbnail {
 
 .LayoutSelector .TabButton.selected         {background: var(--main-color)}
 .LayoutSelector .TabButton.selected:hover   {background: var(--main-color-hover)}
-.LayoutSelector .TabButton.selected .icon16 {background: #FFF}
+.LayoutSelector .TabButton.selected .icon16 {background: #262E30}
 
 .LayoutSelector .TabButton:nth-of-type(1) .icon16 {--icon-url: var(--icon-layout-list)}
 .LayoutSelector .TabButton:nth-of-type(2) .icon16 {--icon-url: var(--icon-layout-compact)}

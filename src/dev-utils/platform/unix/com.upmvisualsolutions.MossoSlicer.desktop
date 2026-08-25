@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Mosso Slicer
+GenericName=3D Printing Software
+Icon=MossoSlicer
+Exec=mosso-slicer %U
+Terminal=false
+Type=Application
+PrefersNonDefaultGPU=true
+X-KDE-RunOnDiscreteGpu=true
+MimeType=model/stl;model/3mf;application/vnd.ms-3mfdocument;application/prs.wavefront-obj;application/x-amf;model/step;
+Categories=Graphics;3DGraphics;Engineering;
+Keywords=3D;Printing;Slicer;pellet;WASP;gcode;stl;obj;amf;
+StartupNotify=false
+StartupWMClass=mosso-slicer

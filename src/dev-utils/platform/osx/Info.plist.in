@@ -3,9 +3,12 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleExecutable</key>
-  <string>@SLIC3R_APP_KEY@</string>
+  <!-- Keep the internal target filename for compatibility with the existing
+       macOS packaging pipeline; CFBundleName and the bundle identifier carry
+       the independent Mosso Slicer identity. -->
+  <string>OrcaSlicer</string>
   <key>CFBundleGetInfoString</key>
-  <string>@SLIC3R_APP_NAME@ Copyright(C) 2026 OrcaSlicer Pte Ltd All Rights Reserved</string>
+  <string>@SLIC3R_APP_NAME@ customisations Copyright(C) 2026 UPM Visual Solutions</string>
   <key>CFBundleIconFile</key>
   <string>images/OrcaSlicer.icns</string>
   <key>CFBundleName</key>
@@ -13,7 +16,7 @@
   <key>CFBundleShortVersionString</key>
   <string>@SLIC3R_APP_NAME@ @SLIC3R_BUILD_ID@</string>
   <key>CFBundleIdentifier</key>
-  <string>com.orcaslicer.OrcaSlicer</string>
+  <string>com.upmvisualsolutions.MossoSlicer</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundlePackageType</key>
@@ -28,9 +31,10 @@
   <array>
     <dict>
       <key>CFBundleURLName</key>
-      <string>orcasliceropen url</string>
+      <string>Mosso Slicer URL</string>
       <key>CFBundleURLSchemes</key>
       <array>
+        <string>upmslicer</string>
         <string>orcasliceropen</string>
         <string>orcaslicer</string>
       </array>

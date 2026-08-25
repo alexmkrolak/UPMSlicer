@@ -1,0 +1,9 @@
+{
+  "type": "machine_model",
+  "name": "WASP 3MT HDP XL",
+  "model_id": "WASP_3MT_HDP_XL",
+  "nozzle_diameter": "2.0;3.0;5.0",
+  "machine_tech": "FGF",
+  "family": "WASP",
+  "default_materials": "Polymaker PETG 20GF - Copy;Generic PLA;Generic PETG"
+}
