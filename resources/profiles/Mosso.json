@@ -1,6 +1,6 @@
 {
   "name": "Mosso",
-  "version": "01.00.00.09",
+  "version": "01.00.00.11",
   "force_update": "1",
   "description": "Mosso Slicer configurations for WASP filament and pellet printers",
   "machine_model_list": [

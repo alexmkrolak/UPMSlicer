@@ -677,12 +677,12 @@ void IMSlider::draw_custom_label_block(const ImVec2 anchor, Type type)
     }
     const ImVec2 text_size = ImGui::CalcTextSize(into_u8(label).c_str());
     const ImVec2 padding = ImVec2(4, 2) * m_scale;
-    const ImU32  clr = IM_COL32(255, 111, 0, 255);
+    const ImU32  clr = IM_COL32(187, 216, 0, 255);
     const float  rounding = 2.0f * m_scale;
     ImVec2 block_pos = { anchor.x - text_size.x - padding.x * 2, anchor.y - text_size.y / 2 - padding.y };
     ImVec2 block_size = { text_size.x + padding.x * 2, text_size.y + padding.y * 2 };
     ImGui::RenderFrame(block_pos, block_pos + block_size, clr, false, rounding);
-    ImGui::PushStyleColor(ImGuiCol_Text, { 1,1,1,1 });
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(45 / 255.f, 45 / 255.f, 49 / 255.f, 1.f));
     ImGui::RenderText(block_pos + padding, into_u8(label).c_str());
     ImGui::PopStyleColor();
 }

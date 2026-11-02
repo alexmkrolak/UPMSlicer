@@ -3178,6 +3178,28 @@ void TabPrint::toggle_options()
 
     m_config_manipulation.toggle_print_fff_options(m_config, int(intptr_t(m_extruder_switch->GetClientData())), m_type < Preset::TYPE_COUNT);
 
+    // Pellet material calibration belongs in the material preset. Hiding these
+    // additional process multipliers avoids several values being multiplied
+    // together while retaining them in the config for project compatibility.
+    const auto &printer_config = m_preset_bundle->printers.get_selected_preset().config;
+    const bool  is_pellet_printer = printer_config.opt_bool("pellet_modded_printer");
+    for (const char *option_key : {
+             "print_flow_ratio",
+             "top_solid_infill_flow_ratio",
+             "bottom_solid_infill_flow_ratio",
+             "set_other_flow_ratios",
+             "first_layer_flow_ratio",
+             "outer_wall_flow_ratio",
+             "inner_wall_flow_ratio",
+             "overhang_flow_ratio",
+             "sparse_infill_flow_ratio",
+             "internal_solid_infill_flow_ratio",
+             "gap_fill_flow_ratio",
+             "support_flow_ratio",
+             "support_interface_flow_ratio",
+         })
+        toggle_line(option_key, !is_pellet_printer);
+
     Field *field = m_active_page->get_field("support_style");
     auto   support_type = m_config->opt_enum<SupportType>("support_type");
     if (auto choice = dynamic_cast<Choice*>(field)) {
@@ -4309,8 +4331,12 @@ void TabFilament::build()
 
         // Orca: New section to focus on flow rate and PA to declutter general section
         optgroup = page->new_optgroup(L("Flow ratio and Pressure Advance"), L"param_flow_ratio_and_pressure_advance");
+        Option material_flow_ratio = optgroup->get_option("filament_flow_ratio", 0);
+        material_flow_ratio.opt.label = L("Material flow ratio");
+        material_flow_ratio.opt.tooltip = L("Global extrusion multiplier for this material. Set the printer's live flow control back to 100% when using this value. For example, enter 1.30 to reproduce a successful print made at 130% live flow.");
+        material_flow_ratio.opt.mode = comSimple;
+        optgroup->append_single_option_line(material_flow_ratio, "material_flow_ratio_and_pressure_advance#flow-ratio");
         optgroup->append_single_option_line("pellet_flow_coefficient", "printer_basic_information_advanced#pellet-modded-printer");
-        optgroup->append_single_option_line("filament_flow_ratio", "material_flow_ratio_and_pressure_advance#flow-ratio", 0);
 
         optgroup->append_single_option_line("enable_pressure_advance", "material_flow_ratio_and_pressure_advance#pressure-advance");
         optgroup->append_single_option_line("pressure_advance", "material_flow_ratio_and_pressure_advance#pressure-advance");
@@ -4367,6 +4393,11 @@ void TabFilament::build()
         line.label_path = "material_temperatures#nozzle";
         line.append_option(optgroup->get_option("nozzle_temperature_initial_layer", 0));
         line.append_option(optgroup->get_option("nozzle_temperature", 0));
+        optgroup->append_line(line);
+
+        line = { L("Barrel/preheat"), L("Pellet extruder barrel or preheat-zone temperature. Used only by compatible printer start G-code.") };
+        line.label_path = "material_temperatures#nozzle";
+        line.append_option(optgroup->get_option("barrel_preheat_temperature", 0));
         optgroup->append_line(line);
 
         optgroup = page->new_optgroup(L("Bed temperature"), L"param_bed_temp");

@@ -388,6 +388,25 @@ TEST_CASE("Custom G-code placeholders are substituted", "[Print]")
     CHECK(per_layer.find(";Layer:399 ") != std::string::npos);
 }
 
+TEST_CASE("Barrel preheat temperature is available to printer start G-code", "[Print][Mosso]")
+{
+    const std::string gcode = slice({ cube(20) }, {
+        { "barrel_preheat_temperature", "235" },
+        { "machine_start_gcode",
+          "M104 S{barrel_preheat_temperature[initial_extruder]} T1 ; barrel set\n"
+          "M109 S{barrel_preheat_temperature[initial_extruder]} T1 ; barrel wait\n"
+          "; purge starts" },
+    });
+    const size_t barrel_set = gcode.find("M104 S235 T1 ; barrel set");
+    const size_t barrel_wait = gcode.find("M109 S235 T1 ; barrel wait");
+    const size_t purge = gcode.find("; purge starts");
+    REQUIRE(barrel_set != std::string::npos);
+    REQUIRE(barrel_wait != std::string::npos);
+    REQUIRE(purge != std::string::npos);
+    CHECK(barrel_set < barrel_wait);
+    CHECK(barrel_wait < purge);
+}
+
 TEST_CASE("export_gcode writes G-code without a result pointer", "[Print][export_gcode]")
 {
     Print print;

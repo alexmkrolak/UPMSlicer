@@ -8,7 +8,7 @@ static bool operator<(wxColour const &l, wxColour const &r) { return l.GetRGBA()
 static std::map<wxColour, wxColour> gDarkColors{
     {"#BBD800", "#BBD800"}, // Mosso Verde Lime accent
     {"#1F8EEA", "#2778D2"}, // rgb(31, 142, 234)   ???
-    {"#FF6F00", "#D15B00"}, // rgb(255, 111, 0)    Secondary color
+    {"#FF6F00", "#D15B00"}, // Warning orange
     {"#D01B1B", "#BB2A3A"}, // rgb(208, 27, 27)    ???
     {"#262E30", "#EFEFF0"}, // rgb(38, 46, 48)     Button text color | Input Text Color
     {"#DFDFDF", "#3E3E45"}, // rgb(223, 223, 223)  Button Background color

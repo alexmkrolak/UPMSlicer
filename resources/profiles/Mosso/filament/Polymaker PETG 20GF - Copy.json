@@ -28,12 +28,15 @@
     "1"
   ],
   "filament_max_volumetric_speed": [
-    "200"
+    "500"
   ],
   "nozzle_temperature": [
     "240"
   ],
   "nozzle_temperature_initial_layer": [
+    "240"
+  ],
+  "barrel_preheat_temperature": [
     "240"
   ],
   "nozzle_temperature_range_low": [

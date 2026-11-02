@@ -4986,8 +4986,11 @@ void GCodeProcessor::process_G1(const std::array<std::optional<double>, 4>& axes
         if (m_width == 0.0f)
             m_width = DEFAULT_TOOLPATH_WIDTH;
 
-        // clamp width to avoid artifacts which may arise from wrong values of m_height
-        m_width = std::min(m_width, std::max(2.0f, 4.0f * m_height));
+        // Clamp only inferred widths. An explicit WIDTH tag is authoritative and may legitimately
+        // exceed four times the layer height for large-nozzle pellet prints with variable layers.
+        // Clamping tagged widths makes a constant-width spiral appear to narrow near its top.
+        if (m_forced_width <= 0.0f)
+            m_width = std::min(m_width, std::max(2.0f, 4.0f * m_height));
     }
     else if (type == EMoveType::Unretract && m_flushing) {
         int extruder_id = get_extruder_id();

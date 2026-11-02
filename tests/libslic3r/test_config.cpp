@@ -321,6 +321,26 @@ SCENARIO("DynamicPrintConfig serialization", "[Config]") {
     }
 }
 
+TEST_CASE("WASP 3MT requires a material barrel temperature", "[Config][Mosso]")
+{
+    DynamicPrintConfig config = DynamicPrintConfig::full_print_config();
+    config.set_deserialize_strict({
+        { "printer_model", "WASP 3MT HDP XL" },
+        { "barrel_preheat_temperature", "0" },
+    });
+
+    CHECK(config.validate().count("barrel_preheat_temperature") == 1);
+
+    config.set_deserialize_strict("barrel_preheat_temperature", "240");
+    CHECK(config.validate().count("barrel_preheat_temperature") == 0);
+
+    config.set_deserialize_strict({
+        { "printer_model", "WASP 4070" },
+        { "barrel_preheat_temperature", "0" },
+    });
+    CHECK(config.validate().count("barrel_preheat_temperature") == 0);
+}
+
 SCENARIO("update_non_diff_values_to_base_config preserves child vectors when child has more extruders than parent",
          "[Config][Variant]") {
     GIVEN("A 2-extruder child printer config inheriting from a 1-extruder parent") {

@@ -1651,6 +1651,7 @@ PRINT_CONFIG_CLASS_DEFINE(
     ((ConfigOptionFloatsOrPercentsNullable, initial_layer_travel_jerk))
     ((ConfigOptionBool,                bbl_calib_mark_logo))
     ((ConfigOptionBool,                disable_m73))
+    ((ConfigOptionBool,                pellet_modded_printer))
 
     // Orca: mmu
     ((ConfigOptionFloat,               cooling_tube_retraction))
@@ -1794,6 +1795,7 @@ PRINT_CONFIG_CLASS_DERIVED_DEFINE(
     //BBS
     ((ConfigOptionFloatsNullable,     initial_layer_infill_speed))
     ((ConfigOptionInts,               nozzle_temperature_initial_layer))
+    ((ConfigOptionInts,               barrel_preheat_temperature))
     ((ConfigOptionInts,               full_fan_speed_layer))
     // ORCA: explicit override for the part cooling fan speed on the first printed layer.
     ((ConfigOptionInts,               initial_layer_fan_speed))

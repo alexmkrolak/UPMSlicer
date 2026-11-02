@@ -4193,13 +4193,13 @@ const wxColour GUI_App::get_label_default_clr_system()
 
 const wxColour GUI_App::get_label_default_clr_modified()
 {
-    return dark_mode() ? wxColour(253, 111, 40) : wxColour(252, 77, 1);
+    return wxColour("#BBD800");
 }
 
 void GUI_App::init_label_colours()
 {
     bool is_dark_mode = dark_mode();
-    m_color_label_modified = is_dark_mode ? wxColour("#F1754E") : wxColour("#F1754E");
+    m_color_label_modified = wxColour("#BBD800");
     m_color_label_sys      = is_dark_mode ? wxColour("#B2B3B5") : wxColour("#363636");
 
 #if defined(_WIN32) || defined(__linux__) || defined(__APPLE__)

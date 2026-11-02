@@ -161,8 +161,10 @@ static const std::map<const wchar_t, std::string> font_icons_extra_large = {
 
 const ImVec4 ImGuiWrapper::COL_GREY_DARK         = { 0.333f, 0.333f, 0.333f, 1.0f };
 const ImVec4 ImGuiWrapper::COL_GREY_LIGHT        = { 0.4f, 0.4f, 0.4f, 1.0f };
-const ImVec4 ImGuiWrapper::COL_ORANGE_DARK       = { 0.757f, 0.404f, 0.216f, 1.0f };
-const ImVec4 ImGuiWrapper::COL_ORANGE_LIGHT      = to_ImVec4(ColorRGBA::ORANGE());
+// Legacy names retained to avoid touching every call site. These are Mosso's
+// Lime accents; warning colours remain defined separately.
+const ImVec4 ImGuiWrapper::COL_ORANGE_DARK       = { 187.f / 255.f, 216.f / 255.f, 0.f, 1.f };
+const ImVec4 ImGuiWrapper::COL_ORANGE_LIGHT      = { 166.f / 255.f, 192.f / 255.f, 0.f, 1.f };
 const ImVec4 ImGuiWrapper::COL_WINDOW_BACKGROUND = { 0.1f, 0.1f, 0.1f, 0.8f };
 const ImVec4 ImGuiWrapper::COL_BUTTON_BACKGROUND = COL_ORANGE_DARK;
 const ImVec4 ImGuiWrapper::COL_BUTTON_HOVERED    = COL_ORANGE_LIGHT;
@@ -187,7 +189,7 @@ const ImVec4 ImGuiWrapper::COL_ORCA              = to_ImVec4(ColorRGBA::ORCA());
 const ImVec4 ImGuiWrapper::COL_ORCA_DARK         = { 187.f / 255.f, 216.f / 255.f, 0.f, 1.f };
 const ImVec4 ImGuiWrapper::COL_ORCA_HOVER        = { 166.f / 255.f, 192.f / 255.f, 0.f, 1.f };
 const ImVec4 ImGuiWrapper::COL_ORCA_HOVER_DARK   = { 166.f / 255.f, 192.f / 255.f, 0.f, 1.f };
-const ImVec4 ImGuiWrapper::COL_MODIFIED          = { 253.f / 255.f, 111.f / 255.f, 40.f / 255.f, 1}; // ORCA same color with m_color_label_modified
+const ImVec4 ImGuiWrapper::COL_MODIFIED          = { 187.f / 255.f, 216.f / 255.f, 0.f, 1.f }; // Mosso Verde Lime
 const ImVec4 ImGuiWrapper::COL_WARNING           = to_ImVec4(ColorRGB::WARNING());
 
 int ImGuiWrapper::TOOLBAR_WINDOW_FLAGS = ImGuiWindowFlags_AlwaysAutoResize

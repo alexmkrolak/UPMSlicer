@@ -470,39 +470,6 @@ body
 	height: 56px;
 }
 
-/* Preserve the original icon silhouettes while applying the Mosso accent
-   exactly. Both WebView2 and WebKit use the PNG alpha channel as the mask. */
-.ProjectActionIcon
-{
-	width: 56px;
-	height: 56px;
-	flex: 0 0 56px;
-	background-color: #BBD800;
-	-webkit-mask-position: center;
-	-webkit-mask-repeat: no-repeat;
-	-webkit-mask-size: 56px 56px;
-	mask-position: center;
-	mask-repeat: no-repeat;
-	mask-size: 56px 56px;
-}
-
-.ProjectActionIcon img
-{
-	opacity: 0;
-}
-
-.NewProjectIcon
-{
-	-webkit-mask-image: url("../img/i4.png");
-	mask-image: url("../img/i4.png");
-}
-
-.OpenProjectIcon
-{
-	-webkit-mask-image: url("../img/i5.png");
-	mask-image: url("../img/i5.png");
-}
-
 .MenuDesc
 {
 	color: #A8A8A8;

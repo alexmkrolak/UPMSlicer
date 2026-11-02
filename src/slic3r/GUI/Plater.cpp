@@ -12421,9 +12421,15 @@ void Plater::priv::set_bed_shape(const Pointfs       &shape,
                                  const std::string   &custom_model,
                                  bool                 force_as_custom)
 {
-    //Orca: reduce resolution for large bed printer
-    BoundingBoxf bed_size = get_extents(shape);
-    if (bed_size.size().maxCoeff() <= LARGE_BED_THRESHOLD)
+    // Orca: reduce resolution when either the bed itself or the complete virtual multi-plate
+    // layout can cross the signed 32-bit scaled-coordinate boundary. With up to 36 plates the
+    // layout has six columns; accounting for the 20% inter-plate gap gives a maximum span of
+    // seven bed widths. This is what makes columns 3 and 6 fail first on a 1000 mm bed.
+    const BoundingBoxf bed_size = get_extents(shape);
+    const int max_plate_columns = compute_colum_count(PartPlateList::MAX_PLATES_COUNT);
+    const double max_virtual_span = bed_size.size().maxCoeff() *
+        (1.0 + (max_plate_columns - 1) * 1.2);
+    if (max_virtual_span <= LARGE_BED_THRESHOLD)
         SCALING_FACTOR = SCALING_FACTOR_INTERNAL;
     else
         SCALING_FACTOR = SCALING_FACTOR_INTERNAL_LARGE_PRINTER;

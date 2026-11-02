@@ -794,8 +794,11 @@ void OG_CustomCtrl::CtrlLine::render(wxDC& dc, wxCoord h_pos, wxCoord v_pos)
     bool is_url_string = false;
     if (ctrl->opt_group->label_width != 0 && !label.IsEmpty()) {
         const wxColour* text_clr = field ? field->label_color() : og_line.label_color();
+        bool is_modified = (text_clr != nullptr && *text_clr == wxGetApp().get_label_clr_modified()) ||
+                           (field != nullptr && field->m_is_modified_value);
         for (const Option& opt : option_set) {
             Field* field = ctrl->opt_group->get_field(opt.opt_id);
+            is_modified |= field && field->m_is_modified_value;
             if (field && field->blink()) {
                 text_clr = &blink_color;
                 break;
@@ -812,7 +815,11 @@ void OG_CustomCtrl::CtrlLine::render(wxDC& dc, wxCoord h_pos, wxCoord v_pos)
         }
         is_url_string = !suppress_hyperlinks && !og_line.label_path.empty();
         // BBS
+        const wxFont old_font = dc.GetFont();
+        if (is_modified)
+            dc.SetFont(old_font.Bold());
         h_pos = draw_text(dc, wxPoint(h_pos, v_pos), label /* + ":" */, text_clr, icon_pos + ctrl->opt_group->label_width * ctrl->m_em_unit - h_pos, is_url_string, true);
+        dc.SetFont(old_font);
     }
 
     // If there's a widget, build it and set result to the correct position.

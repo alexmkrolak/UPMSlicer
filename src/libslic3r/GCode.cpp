@@ -2999,7 +2999,7 @@ void GCode::_do_export(Print& print, GCodeOutputStream &file, ThumbnailsGenerato
 
     // Pellet printers such as the WASP 3MT do not consume G-code thumbnails. Keep this
     // gated by the existing printer option so non-pellet printers remain unchanged.
-    const bool supports_gcode_thumbnails = !print.full_print_config().opt_bool("pellet_modded_printer");
+    const bool supports_gcode_thumbnails = !print.config().pellet_modded_printer.value;
 
     // Orca: Don't output Header block if BTT thumbnail is identified in the list
     // Get the thumbnails value as a string
@@ -8930,6 +8930,7 @@ void GCode::update_placeholder_parser_with_variant_params()
     this->placeholder_parser().set("filament_pre_cooling_temperature_nc", new ConfigOptionInts(remap_ints_by_filament(m_config.filament_pre_cooling_temperature_nc)));
     this->placeholder_parser().set("filament_cooling_before_tower",       new ConfigOptionFloats(remap_floats_by_filament(m_config.filament_cooling_before_tower)));
     this->placeholder_parser().set("nozzle_temperature_initial_layer",    new ConfigOptionInts(remap_ints_by_filament(m_config.nozzle_temperature_initial_layer)));
+    this->placeholder_parser().set("barrel_preheat_temperature",          new ConfigOptionInts(remap_ints_by_filament(m_config.barrel_preheat_temperature)));
     this->placeholder_parser().set("nozzle_temperature",                  new ConfigOptionInts(remap_ints_by_filament(m_config.nozzle_temperature)));
     // first_layer_temperature is a legacy alias of nozzle_temperature_initial_layer
     this->placeholder_parser().set("first_layer_temperature",             new ConfigOptionInts(remap_ints_by_filament(m_config.nozzle_temperature_initial_layer)));

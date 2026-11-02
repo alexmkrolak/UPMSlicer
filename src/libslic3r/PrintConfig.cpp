@@ -3723,6 +3723,16 @@ void PrintConfigDef::init_fff_params()
     def->max = max_temp;
     def->set_default_value(new ConfigOptionInts { 200 });
 
+    def = this->add("barrel_preheat_temperature", coInts);
+    def->label = L("Barrel/preheat");
+    def->full_label = L("Barrel/preheat temperature");
+    def->tooltip = L("Temperature of the pellet extruder barrel or preheat zone. This value is used only by printer "
+                     "start G-code that explicitly references it.");
+    def->sidetext = L(u8"\u2103" /* °C */);
+    def->min = 0;
+    def->max = max_temp;
+    def->set_default_value(new ConfigOptionInts { 0 });
+
     def = this->add("full_fan_speed_layer", coInts);
     def->label = L("Full fan speed at layer");
     def->tooltip = L("Fan speed will be ramped up linearly from zero at layer \"close_fan_the_first_x_layers\" "
@@ -11552,6 +11562,16 @@ std::map<std::string, std::string> validate(const FullPrintConfig &cfg, bool und
             error_message.emplace("nozzle_diameter", L("invalid value ") + cfg.nozzle_diameter.serialize());
             break;
         }
+
+    if (cfg.printer_model.value == "WASP 3MT HDP XL") {
+        for (int temperature : cfg.barrel_preheat_temperature.values) {
+            if (temperature <= 0) {
+                error_message.emplace("barrel_preheat_temperature",
+                                      L("A barrel/preheat temperature must be set for the WASP 3MT HDP XL."));
+                break;
+            }
+        }
+    }
 
     // --perimeters
     if (cfg.wall_loops.value < 0) {

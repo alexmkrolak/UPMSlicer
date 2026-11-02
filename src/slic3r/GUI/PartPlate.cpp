@@ -539,20 +539,31 @@ static void init_raycaster_from_model(PickingModel& model)
     model.mesh_raycaster = std::make_unique<MeshRaycaster>(std::make_shared<const TriangleMesh>(std::move(its)));
 }
 
-void PartPlate::calc_gridlines(const ExPolygon& poly, const BoundingBox& pp_bbox) {
+void PartPlate::calc_gridlines(const ExPolygon&, const BoundingBox&) {
     m_gridlines.reset();
     m_gridlines_bolder.reset();
 
-    // calculate and generate grid
-    int   step          = Bed_2D::calculate_grid_step(pp_bbox, scale_(1.00));
-    Vec2d scaled_origin = Vec2d(scale_(m_origin.x()),scale_(m_origin.y()));
-    auto  grid_lines    = Bed_2D::generate_grid(poly, pp_bbox, scaled_origin, scale_(step), SCALED_EPSILON);
+    // Build the grid directly from local millimetre coordinates. On a 1000 mm bed the third
+    // virtual-plate column starts at X=2400 mm, beyond the signed 32-bit range after 1e6 scaling.
+    // Subtracting the plate origin before scaling keeps every clipping operation near zero.
+    ExPolygon local_poly;
+    local_poly.contour.points.reserve(m_shape.size());
+    for (const Vec2d& point : m_shape) {
+        local_poly.contour.append({
+            coord_t(scale_(point.x() - m_origin.x())),
+            coord_t(scale_(point.y() - m_origin.y()))
+        });
+    }
+    const BoundingBox local_bbox = local_poly.contour.bounding_box();
+
+    const int step = Bed_2D::calculate_grid_step(local_bbox, scale_(1.00));
+    auto grid_lines = Bed_2D::generate_grid(local_poly, local_bbox, Vec2d::Zero(), scale_(step), SCALED_EPSILON);
 
     Lines lines_thin = to_lines(grid_lines[0]);
 	Lines lines_bold = to_lines(grid_lines[1]);
 
 	// append bed contours
-	Lines contour_lines = to_lines(poly);
+	Lines contour_lines = to_lines(local_poly);
 	std::copy(contour_lines.begin(), contour_lines.end(), std::back_inserter(lines_thin));
 
 	if (!init_model_from_lines(m_gridlines       , lines_thin, GROUND_Z_GRIDLINE))
@@ -990,11 +1001,11 @@ void PartPlate::render_grid(bool bottom) {
     glsafe(::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     const Camera& camera = wxGetApp().plater()->get_camera();
-    const std::array<int, 4>& viewport = camera.get_viewport();
     const Transform3d& view_matrix = camera.get_view_matrix();
     const Transform3d& projection_matrix = camera.get_projection_matrix();
+    const Transform3d grid_view_matrix = view_matrix * Geometry::assemble_transform(m_origin);
 
-    shader->set_uniform("view_model_matrix", view_matrix);
+    shader->set_uniform("view_model_matrix", grid_view_matrix);
     shader->set_uniform("projection_matrix", projection_matrix);
 
 #if !SLIC3R_OPENGL_ES
@@ -1005,42 +1016,22 @@ void PartPlate::render_grid(bool bottom) {
     ColorRGBA color;
 	if (bottom)
         color = LINE_BOTTOM_COLOR;
-	else {
-		if (m_selected)
-            color = m_partplate_list->m_is_dark ? LINE_TOP_SEL_DARK_COLOR : LINE_TOP_SEL_COLOR;
-		else
-            color = m_partplate_list->m_is_dark ? LINE_TOP_DARK_COLOR : LINE_TOP_COLOR;
-	}
+	else
+        // Keep grid spacing and contrast visually consistent across every plate. Plate selection is
+        // already communicated by the plate background and number, and using a separate grid colour
+        // made the active plate appear to have a different grid in both Prepare and Preview.
+        color = m_partplate_list->m_is_dark ? LINE_TOP_DARK_COLOR : LINE_TOP_COLOR;
     m_gridlines.set_color(color);
     m_gridlines.render();
 
-    shader->stop_using();
-
-    // ORCA: OpenGL Core Profile support
-#if SLIC3R_OPENGL_ES
-    shader = wxGetApp().get_shader("dashed_lines");
-#else
-    shader = OpenGLManager::get_gl_info().is_core_profile() ? wxGetApp().get_shader("dashed_thick_lines") : wxGetApp().get_shader("flat");
-#endif // SLIC3R_OPENGL_ES
-    if (shader == nullptr) {
-        return;
-    }
-    shader->start_using();
-
-    shader->set_uniform("view_model_matrix", view_matrix);
-    shader->set_uniform("projection_matrix", projection_matrix);
-
 #if !SLIC3R_OPENGL_ES
-    if (OpenGLManager::get_gl_info().is_core_profile()) {
-#endif // !SLIC3R_OPENGL_ES
-        shader->set_uniform("viewport_size", Vec2d(double(viewport[2]), double(viewport[3])));
-        shader->set_uniform("width", 0.25f);
-#if !SLIC3R_OPENGL_ES
-    } else {
+    if (!OpenGLManager::get_gl_info().is_core_profile())
         glsafe(::glLineWidth(2.0f * m_scale_factor));
-    }
 #endif // !SLIC3R_OPENGL_ES
 
+    // The geometry shader previously used here can expand partially clipped grid lines into
+    // screen-spanning quads on some Windows OpenGL drivers. Flat line primitives are stable at
+    // every plate position, including the rightmost column.
     m_gridlines_bolder.set_color(color);
     m_gridlines_bolder.render();
 
@@ -2477,7 +2468,7 @@ void PartPlate::generate_plate_name_texture()
     auto l = Label::sysFont(size, true);
     wxFont* font = &l;
 
-	wxColour foreground(0xf2, 0x75, 0x4e, 0xff);
+	wxColour foreground("#BBD800");
 	if (!m_name_texture.generate_from_text_string(text.ToUTF8().data(), *font, *wxBLACK, foreground)) {
 		BOOST_LOG_TRIVIAL(error) << "PartPlate::generate_plate_name_texture(): generate_from_text_string() failed";
 		return;
@@ -4283,7 +4274,7 @@ void PartPlateList::generate_icon_textures()
 			else
 				file_name = std::to_string(i+1);
 
-			wxColour foreground(0xf2, 0x75, 0x4e, 0xff);
+			wxColour foreground("#BBD800");
 			if (!m_idx_textures[i].generate_from_text_string(file_name, *font, *wxBLACK, foreground)) {
 				BOOST_LOG_TRIVIAL(error) << __FUNCTION__ << boost::format(":load file %1% failed") % file_name;
 			}
